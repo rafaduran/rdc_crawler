@@ -2,7 +2,7 @@
 
 # Either use this file wholesale:
 
-# from mediagenerator_boilerplate.media import HTML5_MEDIA_BUNDLES
+# from html5boilerplate.media import HTML5_MEDIA_BUNDLES
 # MEDIA_BUNDLES += HTML5_MEDIA_BUNDLES
 
 # Or copy the required parts from below to your MEDIA_BUNDLES in settings.py
