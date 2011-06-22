@@ -6,13 +6,13 @@ by Jusin Marrington (HowlingEverett)
 
 This is a simple packaging of Paul Irish's HTML5 Boilerplate into a base
 Django template and sensibly laid-out media folder. Use it with rhec's HTML5
-Django plugin for an excellent 
+Django plugin for an excellent
 
 
 WHAT'S IN IT?
 
 Paul Irish's HTML5 Boilerplate is a great place to start for next-generation
-web project, providing you're a fan of jQuery ;) It packages a whole heap of 
+web project, providing you're a fan of jQuery ;) It packages a whole heap of
 useful tools - modernizr to add HTML5 elements to IE6/7/8, jQuery via Google
 CDN (with a local fallback), etc. It also overrides console.log() to provide
 much more useful behaviour.
@@ -27,10 +27,10 @@ wrapped up into blocks for you to override/customise at your convenience.
 
 HOW TO USE IT
 
-The paths in the base.html template are configured to work with Django's 
+The paths in the base.html template are configured to work with Django's
 default MEDIA_ROOT setting; drop the contents of the 'media' folder into your
 media root and everything should work. If you're using a different MEDIA_ROOT
-than '/media/', then you'll need to update the pathing in the base.html 
+than '/media/', then you'll need to update the pathing in the base.html
 accordingly
 
 Place the contents of 'templates' folder into a directory you've included in
@@ -38,3 +38,28 @@ your TEMPLATE_DIRS list, and rename the 'myapp' subfolder to the name of your
 first app. Providing base.html is at the root of a TEMPLATE_DIRS directory,
 you can simply {% extends 'base.html' %} in any of your templates to get all
 of the HTML5 Boilerplate's included functionality.
+
+
+USING WITH django-mediagenerator
+
+Place django-html5boilerplate somewhere that it can be found as an app, ie:
+ln -s ../django-html5boilerplate html5boilerplate
+
+Add html5boilerplate to INSTALLED_APPS:
+INSTALLED_APPS = (
+    ...
+    'html5boilerplate',
+    ...
+)
+
+Import the HTML5_MEDIA_BUNDLES into settings.py, or copy the required sections
+from media.py into settings.py, ie:
+
+from html5boilerplate.media import HTML5_MEDIA_BUNDLES
+MEDIA_BUNDLES += HTML5_MEDIA_BUNDLES
+
+Override boilerplate.html to your taste using a base.html that extends
+boilerplate.html. You can simple copy the existing base.html from
+html5boilerplate into your templates folder.
+Then just extend base.html for all your templates.
+
