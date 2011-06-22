@@ -42,15 +42,25 @@ of the HTML5 Boilerplate's included functionality.
 
 USING WITH django-mediagenerator
 
+Add django-mediagenerator to your virtualenv (or what ever alternative you use):
+pip install django-mediagenerator
+
 Place django-html5boilerplate somewhere that it can be found as an app, ie:
 ln -s ../django-html5boilerplate html5boilerplate
 
-Add html5boilerplate to INSTALLED_APPS:
+Add html5boilerplate and mediagenerator to INSTALLED_APPS:
 INSTALLED_APPS = (
     ...
+    'mediagenerator',
     'html5boilerplate',
     ...
 )
+
+Add mediagenerator middleware. mediagenerator must be the first item listed.
+MIDDLEWARE_CLASSES = (
+    'mediagenerator.middleware.MediaMiddleware',
+) + MIDDLEWARE_CLASSES
+
 
 Import the HTML5_MEDIA_BUNDLES into settings.py, or copy the required sections
 from media.py into settings.py, ie:
@@ -63,3 +73,25 @@ boilerplate.html. You can simple copy the existing base.html from
 html5boilerplate into your templates folder.
 Then just extend base.html for all your templates.
 
+
+STATIC landing.html EXAMPLE
+
+By modifying urls.py to include the following you can quickly test landing.html.
+
+from django.views.generic.simple import direct_to_template
+
+urlpatterns = patterns('',
+    ...
+    url(r'^$', direct_to_template, {'template': 'landing.html'}),
+)
+
+
+PRODUCTION DEPLOYMENT
+
+Make sure you run ''python manage.py generatemedia'' prior to deployment to
+update all static file changes.
+
+
+CREDIT
+All Buttons Pressed:
+    http://www.allbuttonspressed.com/projects/django-mediagenerator
