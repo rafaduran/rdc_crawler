@@ -13,7 +13,7 @@ HTML5_MEDIA_BUNDLES = (
     ),
 
     ('head.js',
-        'js/libs/modernizr-2.0.js',
+        'js/libs/modernizr-2.0.min.js',
         'js/libs/respond.js',
     ),
 
