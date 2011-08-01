@@ -98,7 +98,7 @@
   {% block extra_js %}{% endblock %}
 
   {% block google_analytics %}
-  {% if request.user.is_superuser %}
+  {% if not request.user.is_superuser %}
   {# mathiasbynens.be/notes/async-analytics-snippet Change UA-XXXXX-X to be your site's ID #}
   <script>
     var _gaq=[['_setAccount','{% block analytics_id %}UA-XXXXX-X{% endblock %}'],['_trackPageview'],['_trackPageLoadTime']];
