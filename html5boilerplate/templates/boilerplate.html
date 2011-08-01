@@ -53,6 +53,7 @@
   {# modernizr and respond are also only loaded in the head for IE, else they are included in main.js at the end #}
   <!--[if lt IE 8]>{% include_media 'head-ie.js' %}<![endif]-->
   {% endblock %}
+  {% block extra_head %}{% endblock %}
 </head>
 {% endblock %}
 
