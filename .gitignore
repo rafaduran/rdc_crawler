@@ -1,0 +1,4 @@
+.crawler-venv/
+*.pyc
+.project
+.pydevproject
