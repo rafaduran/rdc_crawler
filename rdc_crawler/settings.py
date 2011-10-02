@@ -148,7 +148,7 @@ LOGGING = {
 
 # Crawler configuration
 try:
-    from local.local_settings import SERVER, USER_AGENT
+    from rdc_crawler.local.local_settings import SERVER, USER_AGENT
 except ImportError as e:
     print("local/local_settings.py not found!")
     print("Use local/local_settings.py.template")
