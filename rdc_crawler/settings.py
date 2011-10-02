@@ -22,6 +22,14 @@ DATABASES = {
     }
 }
 
+# TODO: use memcached
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/var/tmp/django_cache',
+    }
+}
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -148,7 +156,9 @@ LOGGING = {
 
 # Crawler configuration
 try:
-    from rdc_crawler.local.local_settings import SERVER, USER_AGENT
+    import rdc_crawler.local.local_settings as local_settings
+    SERVER = local_settings.SERVER
+    USER_AGENT = local_settings.USER_AGENT
 except ImportError as e:
     print("local/local_settings.py not found!")
     print("Use local/local_settings.py.template")
