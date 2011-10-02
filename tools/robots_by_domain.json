@@ -1,0 +1,9 @@
+{
+   "_id": "_design/robotstxt",
+   "language": "javascript",
+   "views": {
+       "by_domain": {
+           "map": "function(doc) { emit([doc.protocol, doc.domain], doc._id); }"
+       }
+   }
+}
