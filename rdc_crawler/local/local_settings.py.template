@@ -3,3 +3,7 @@
 SERVER = 'http://localhost:5984/'
 # Crawler user-agent
 USER_AGENT = 'agent'
+# CouchDB user
+COUCH_USER = 'user'
+# CouchDB user password
+COUCH_PASS = 'password'

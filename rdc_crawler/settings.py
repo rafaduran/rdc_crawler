@@ -159,6 +159,8 @@ try:
     import rdc_crawler.local.local_settings as local_settings
     SERVER = local_settings.SERVER
     USER_AGENT = local_settings.USER_AGENT
+    COUCH_USER = local_settings.COUCH_USER
+    COUCH_PASS = local_settings.COUCH_PASS
 except ImportError as e:
     print("local/local_settings.py not found!")
     print("Use local/local_settings.py.template")
@@ -166,6 +168,7 @@ except ImportError as e:
 
 # Setting db
 server = couchdb.Server(SERVER)
+server.resource.credentials = (COUCH_USER, COUCH_PASS)
 try:
     db = server['crawler']
 except couchdb.http.ResourceNotFound:
