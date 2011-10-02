@@ -1,5 +1,7 @@
 # Django settings for rdc_crawler project.
 
+import couchdb
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -143,3 +145,19 @@ LOGGING = {
         },
     }
 }
+
+# Crawler configuration
+try:
+    from local.local_settings import SERVER, USER_AGENT
+except ImportError as e:
+    print("local/local_settings.py not found!")
+    print("Use local/local_settings.py.template")
+    raise e
+
+# Setting db
+server = couchdb.Server(SERVER)
+try:
+    db = server['crawler']
+except couchdb.http.ResourceNotFound:
+    db = server.create('crawler')
+

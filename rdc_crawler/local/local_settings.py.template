@@ -1,0 +1,5 @@
+# Crawler configuration
+# CouchDb host
+SERVER = 'http://localhost:5984/'
+# Crawler user-agent
+USER_AGENT = 'agent'
