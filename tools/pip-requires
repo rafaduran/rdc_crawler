@@ -3,3 +3,4 @@ Celery
 django
 django-celery
 pylint
+pep8

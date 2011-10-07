@@ -20,7 +20,7 @@
 #    under the License.
 
 """
-Installation script for Nova's development virtualenv
+Installation script for rdc-web-crawler's development virtualenv
 """
 
 import os
@@ -106,24 +106,24 @@ def install_dependencies(venv=VENV):
     run_command(['tools/with_venv.sh', 'pip', 'install', '-E', venv, '-r',
               PIP_REQUIRES], redirect_output=False)
 
-    # Tell the virtual env how to "import nova"
+    # Tell the virtual env how to "import rdc_crawler"
     pthfile = os.path.join(venv, "lib", PY_VERSION, "site-packages",
-                        "rdc-crawler.pth")
+                        "rdc_crawler.pth")
     f = open(pthfile, 'w')
     f.write("%s\n" % ROOT)
 
 
 def print_help():
     help = """
-    Nova development environment setup is complete.
+    rdc_crawler development environment setup is complete.
 
-    Nova development uses virtualenv to track and manage Python dependencies
+    rdc_crawler development uses virtualenv to track and manage Python dependencies
     while in development and testing.
 
-    To activate the Nova virtualenv for the extent of your current shell
+    To activate the rdc_crawler virtualenv for the extent of your current shell
     session you can run:
 
-    $ source .nova-venv/bin/activate
+    $ source .crawler-venv/bin/activate
 
     Or, if you prefer, you can run commands in the virtualenv on a case by case
     basis by running:
