@@ -5,9 +5,10 @@ from datetime import datetime
 import pickle
 from robotparser import RobotFileParser
 import time
+from urlparse import urlparse
+from urllib2 import urlopen, Request
 
 from django.core.cache import cache
-
 from couchdb.mapping import (TextField, ListField, FloatField, DateTimeField,
             Document)
 
@@ -21,6 +22,39 @@ class Page(Document):
     links = ListField(TextField())
     rank = FloatField(default=0)
     last_checked = DateTimeField(default=datetime.now)
+
+    @staticmethod
+    def get_by_url(url, update=True):
+        result = settings.DB.view("page/by_url", key=url)
+        if len(result.rows) == 1:
+            doc = Page.load(settings.DB, result.rows[0].value)
+            if doc.is_valid():
+                return doc
+        elif not update:
+            return None
+        else:
+            doc = Page(url=url)
+        doc.update()
+        return doc
+
+    def update(self):
+        parse = urlparse(self.url)
+        robotstxt = RobotsTxt.get_by_domain(parse.scheme, parse.netdoc)
+        if not robotstxt.is_allowed(parse.netdoc):
+            return False
+
+        while cache.get(parse.netdoc) is not None:
+            time.sleep(1)
+
+        cache.set(parse.netdoc, True, 10)
+        req = Request(self.url, None, {"User-Agent": settings.USER_AGENT})
+        resp = urlopen(req)
+        if not resp.info()['Content-Type'].startswith("text/html"):
+            return
+        self.content = resp.read().decode("utf-8")
+        self.last_checked = datetime.now()
+
+        self.store(settings.DB)
 
 
 class RobotsTxt(Document):
