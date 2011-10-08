@@ -158,9 +158,11 @@ INSTALLED_APPS = (
 try:
     from rdc_crawler.local.local_settings import * #@UnusedWildImport
     try:
-        DB = SERVER['crawler']
+        server = couchdb.Server(SERVER) # pylint:disable=C0103
+        server.resource.credentials = (COUCH_USER, COUCH_PASS)
+        DB = server['crawler']
     except couchdb.http.ResourceNotFound:
-        DB = SERVER.create('crawler')
+        DB = server.create('crawler')
 except ImportError as e:
     print("local/local_settings.py not found!")
     print("Use local/local_settings.py.template")
