@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- Encoding: utf-8 -*-
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
 # Crawler configuration
 # CouchDb host
 SERVER = 'http://localhost:5984/'
@@ -26,3 +30,30 @@ DATABASES = {
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'notsosecret'
+
+# Celery
+# Broker settings
+BROKER_TRANSPORT = "amqp"
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_USER = "guest"
+BROKER_PASSWORD = "guest"
+BROKER_VHOST = "/"
+BROKER_USER_SSL = False
+
+# Enables error emails.
+CELERY_SEND_TASK_ERROR_EMAILS = False
+
+# CELERYD_CONCURRENCY = 10
+# CELERYD_LOG_FILE = "celeryd.log"
+# CELERYD_LOG_LEVEL = "INFO"
+
+# Celery queues
+CELERY_QUEUES = {"default": {"exchange": "default",
+                             "binding_key": "default"}}
+CELERY_DEFAULT_QUEUE = "default"
+
+# Email
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.dirname(os.path.join(os.path.abspath(__file__),
+                                    '..','..'))

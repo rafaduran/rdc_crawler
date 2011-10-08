@@ -11,6 +11,25 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# Cache
+CACHES = {
+    'default': {
+         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+         'LOCATION': '.django_cache',
+    }
+}
+
+# Databases
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/path/to/file.sqlite3',
+    }
+}
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = 'notsosecret'
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -137,27 +156,16 @@ INSTALLED_APPS = (
 
 # LOCAL SETTINGS, OVERRITING GLOBALS
 try:
-    import rdc_crawler.local.local_settings as local_settings
+    from rdc_crawler.local.local_settings import * #@UnusedWildImport
+    try:
+        DB = SERVER['crawler']
+    except couchdb.http.ResourceNotFound:
+        DB = SERVER.create('crawler')
 except ImportError as e:
     print("local/local_settings.py not found!")
     print("Use local/local_settings.py.template")
     raise e
-DATABASES = local_settings.DATABASES
-CACHES = local_settings.CACHES
-SECRET_KEY = local_settings.SECRET_KEY
 
-# CRAWLER RELATED CONFIGURATION
-
-# CouchDB
-SERVER = local_settings.SERVER
-USER_AGENT = local_settings.USER_AGENT
-COUCH_USER = local_settings.COUCH_USER
-COUCH_PASS = local_settings.COUCH_PASS
-
-# Setting db
-server = couchdb.Server(SERVER)  # pylint:disable=C0103
-server.resource.credentials = (COUCH_USER, COUCH_PASS)
-try:
-    DB = server['crawler']
-except couchdb.http.ResourceNotFound:
-    DB = server.create('crawler')
+# Celery
+import djcelery
+djcelery.setup_loader()
