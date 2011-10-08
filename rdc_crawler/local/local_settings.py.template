@@ -7,3 +7,11 @@ USER_AGENT = 'agent'
 COUCH_USER = 'user'
 # CouchDB user password
 COUCH_PASS = 'password'
+
+# Cache
+CACHES = {
+    'default': {
+         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+         'LOCATION': '.django_cache',
+    }
+}

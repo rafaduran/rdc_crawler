@@ -22,14 +22,6 @@ DATABASES = {
     }
 }
 
-# TODO: use memcached
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '.django_cache',
-    }
-}
-
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -155,17 +147,23 @@ LOGGING = {
     }
 }
 
-# Crawler configuration
+# LOCAL SETTINGS, OVERRITING GLOBALS
 try:
     import rdc_crawler.local.local_settings as local_settings
-    SERVER = local_settings.SERVER
-    USER_AGENT = local_settings.USER_AGENT
-    COUCH_USER = local_settings.COUCH_USER
-    COUCH_PASS = local_settings.COUCH_PASS
 except ImportError as e:
     print("local/local_settings.py not found!")
     print("Use local/local_settings.py.template")
     raise e
+
+CACHES = local_settings.CACHES
+
+# CRAWLER RELATED CONFIGURATION
+
+# CouchDB
+SERVER = local_settings.SERVER
+USER_AGENT = local_settings.USER_AGENT
+COUCH_USER = local_settings.COUCH_USER
+COUCH_PASS = local_settings.COUCH_PASS
 
 # Setting db
 server = couchdb.Server(SERVER)  # pylint:disable=C0103
