@@ -15,3 +15,14 @@ CACHES = {
          'LOCATION': '.django_cache',
     }
 }
+
+# Databases
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/path/to/file.sqlite3',
+    }
+}
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = 'notsosecret'
