@@ -2,11 +2,11 @@
 # -*- Encoding: utf-8 -*-
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 """
-:py:mod:`~rdc_crawler.crawler.tasks` --- Very short description
+:py:mod:`~rdc_crawler.crawler.celery.tasks` --- Very short description
 ======================================
 Long description
 
-.. module:: rdc_crawler.crawler.tasks
+.. module:: rdc_crawler.crawler.celery.tasks
     :synopsis: Short description
 
 .. moduleauthor::rdc
