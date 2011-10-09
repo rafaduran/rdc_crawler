@@ -2,56 +2,63 @@
 # -*- Encoding: utf-8 -*-
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 
+import os
+import rdc_crawler.crawler.celery.queues as queues
+
+
 # Crawler configuration
 # CouchDb host
-SERVER = 'http://localhost:5984/'
+SERVER = 'http://{{ couch_host if couch_host is defined else "localhost" }}:{{ couch_port if couch_host is defined else 5984 }}/{{ couch_path }}'
 # Crawler user-agent
-USER_AGENT = 'agent'
+USER_AGENT = '{{ user_agent if user_agent is defined else "User-Agent/1.0"}}'
 # CouchDB user
-COUCH_USER = 'user'
+COUCH_USER = '{{ couch_user }}'
 # CouchDB user password
-COUCH_PASS = 'password'
+COUCH_PASS = '{{ couch_pass }}'
 
 # Cache
 CACHES = {
     'default': {
-         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-         'LOCATION': '.django_cache',
+         'BACKEND': 'django.core.cache.backends.{{ cache_backend }}',
+         'LOCATION': '{{ cache_host }}:{{ cache_port }}',
     }
 }
 
 # Databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/path/to/file.sqlite3',
+        'ENGINE': 'django.db.backends.{{ db_engine }}',
+        'NAME': '{{ db_name }}',
+        'USER': '{{ db_user }}',
+        'PASSWORD': '{{db_pass }}',
+        'HOST': '{{ db_host }}',
+        'PORT': '{{ db_port }}',
     }
 }
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'notsosecret'
+SECRET_KEY = '{{ secret_key }}'
 
 # Celery
 # Broker settings
-BROKER_TRANSPORT = "amqp"
-BROKER_HOST = "localhost"
-BROKER_PORT = 5672
-BROKER_USER = "guest"
-BROKER_PASSWORD = "guest"
-BROKER_VHOST = "/"
-BROKER_USER_SSL = False
+BROKER_TRANSPORT = 'couchdb'
+BROKER_HOST = '{{ broker_host }}'
+BROKER_PORT = {{ broker_port }}
+BROKER_USER = '{{ borker_user }}'
+BROKER_PASSWORD = '{{ broker_pass }}'
+BROKER_VHOST = '{{ broker_vhost }}'
 
 # Enables error emails.
-CELERY_SEND_TASK_ERROR_EMAILS = False
+CELERY_SEND_TASK_ERROR_EMAILS = True
 
 # CELERYD_CONCURRENCY = 10
 # CELERYD_LOG_FILE = "celeryd.log"
 # CELERYD_LOG_LEVEL = "INFO"
 
 # Celery queues
-CELERY_QUEUES = {"default": {"exchange": "default",
-                             "binding_key": "default"}}
-CELERY_DEFAULT_QUEUE = "default"
+CELERY_QUEUES = queues.CELERY_QUEUES
+CELERY_ROUTES = queues.CELERY_ROUTES
+
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'

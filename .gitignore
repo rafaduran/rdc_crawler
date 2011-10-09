@@ -7,3 +7,4 @@ rdc_crawler/local/local_settings.py
 pep8.txt
 pylint.txt
 celerybeat-schedule
+.fabricrc

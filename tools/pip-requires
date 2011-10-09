@@ -8,4 +8,6 @@ python-memcached
 pylibmc
 MySQL-python>=1.2.2
 # Just for development
-pysqlite2
+pysqlite
+Fabric
+Jinja2
