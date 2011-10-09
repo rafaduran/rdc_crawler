@@ -6,3 +6,4 @@ rdc_crawler/local/local_settings.py
 .settings
 pep8.txt
 pylint.txt
+celerybeat-schedule
