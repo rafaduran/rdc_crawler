@@ -26,14 +26,16 @@ def install_external_deps():
     fapi.run("apt-get -y install libmemcached-dev libmysqlclient-dev"
              " libsqlite3-dev git")
 
-
-def bootstrap():
-    install_external_deps()
-    if not files.exists(fapi.env.code_dir):
-        fapi.run('git clone git://github.com/rafaduran/rdc_crawler.git {0}'.\
-                 format(fapi.env.code_dir))
-
-    with fcm.cd(fapi.env.code_dir):
+def update_src(path=fapi.env.code_dir):
+    with fcm.cd(path):
         fapi.run('git pull')
         install_venv()
         set_local_settings(dest='rdc_crawler/local/local_settings.py')
+
+
+def bootstrap(path=fapi.env.code_dir):
+    install_external_deps()
+    if not files.exists(fapi.env.code_dir):
+        fapi.run('git clone git://github.com/rafaduran/rdc_crawler.git {0}'.\
+                 format(path))
+    update_src(path)
