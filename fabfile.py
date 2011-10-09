@@ -1,6 +1,8 @@
 import fabric.api as fapi
 import fabric.contrib.files as files
 import fabric.context_managers as fcm
+import fabric.contrib.console as console
+
 
 def run_checks():
     fapi.local("tools/run_checks.sh")
@@ -26,14 +28,30 @@ def install_external_deps():
     fapi.run("apt-get -y install libmemcached-dev libmysqlclient-dev"
              " libsqlite3-dev git")
 
-def update_src(path=fapi.env.code_dir):
+
+def local_changes():
+    branch = fapi.local("git branch",capture=True)[2:]
+    remote = fapi.local("git remote show",capture=True)
+    return bool(fapi.local("git diff {0}/{1}".format(remote,branch),
+                           capture=True))
+
+
+def update_src(path=None):
+    if not path:
+        path = fapi.env.code_dir
+    if local_changes():
+        if not console.confirm("Not pushed changes have been found, continue?"):
+            fapi.abort("Aborting...")
+
     with fcm.cd(path):
         fapi.run('git pull')
         install_venv()
         set_local_settings(dest='rdc_crawler/local/local_settings.py')
 
 
-def bootstrap(path=fapi.env.code_dir):
+def bootstrap(path=None):
+    if not path:
+        path = fapi.env.code_dir
     install_external_deps()
     if not files.exists(fapi.env.code_dir):
         fapi.run('git clone git://github.com/rafaduran/rdc_crawler.git {0}'.\
