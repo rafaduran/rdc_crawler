@@ -2,13 +2,14 @@ import fabric.api as fapi
 import fabric.contrib.files as files
 import fabric.context_managers as fcm
 
-def set_local_settings(settings=None, path="/tmp/local_settings.py"):
+def set_local_settings(settings=None, src='rdc_crawler/local/'
+                       'local_settings.py.template',
+                       dest='/tmp/local_settings.py'):
     if not settings:
         if fapi.env.has_key('broker_port'):
             fapi.env.broker_port = int(fapi.env.broker_port)
             settings = fapi.env
-    files.upload_template('rdc_crawler/local/local_settings.py.template', 
-                     path, context=settings,use_jinja=True)
+    files.upload_template(src, dest, context=settings,use_jinja=True)
 
 
 def install_venv(path=None):
@@ -17,7 +18,13 @@ def install_venv(path=None):
     fapi.run('python tools/install_venv.py')
 
 
+def install_external_deps():
+    fapi.run("apt-get -y install libmemcached-dev libmysqlclient-dev"
+             " libsqlite3-dev git")
+
+
 def bootstrap():
+    install_external_deps()
     if not files.exists(fapi.env.code_dir):
         fapi.run('git clone git://github.com/rafaduran/rdc_crawler.git {0}'.\
                  format(fapi.env.code_dir))
@@ -25,5 +32,4 @@ def bootstrap():
     with fcm.cd(fapi.env.code_dir):
         fapi.run('git pull')
         install_venv()
-        set_local_settings(path='{0}/local/local_settings.py'.\
-                           format(fapi.env.code_dir))
+        set_local_settings(dest='rdc_crawler/local/local_settings.py')
