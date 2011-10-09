@@ -2,6 +2,10 @@ import fabric.api as fapi
 import fabric.contrib.files as files
 import fabric.context_managers as fcm
 
+def run_checks():
+    fapi.local("tools/run_checks.sh")
+
+
 def set_local_settings(settings=None, src='rdc_crawler/local/'
                        'local_settings.py.template',
                        dest='/tmp/local_settings.py'):
