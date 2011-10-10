@@ -1,5 +1,6 @@
 import fabric.api as fapi
 import fabric.contrib.files as files
+import fabric.operations as operations
 import fabric.context_managers as fcm
 import fabric.contrib.console as console
 
@@ -25,7 +26,7 @@ def install_venv(path=None):
 
 
 def install_external_deps():
-    fapi.run("apt-get -y install libmemcached-dev libmysqlclient-dev"
+    operations.sudo("apt-get -y install libmemcached-dev libmysqlclient-dev"
              " libsqlite3-dev git")
 
 
