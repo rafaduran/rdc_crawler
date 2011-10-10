@@ -39,14 +39,14 @@ class Page(Document):
 
     def update(self):
         parse = urlparse(self.url)
-        robotstxt = RobotsTxt.get_by_domain(parse.scheme, parse.netdoc)
-        if not robotstxt.is_allowed(parse.netdoc):
+        robotstxt = RobotsTxt.get_by_domain(parse.scheme, parse.netloc)
+        if not robotstxt.is_allowed(parse.netloc):
             return False
 
-        while cache.get(parse.netdoc) is not None:
+        while cache.get(parse.netloc) is not None:
             time.sleep(1)
 
-        cache.set(parse.netdoc, True, 10)
+        cache.set(parse.netloc, True, 10)
         req = Request(self.url, None, {"User-Agent": settings.USER_AGENT})
         resp = urlopen(req)
         if not resp.info()['Content-Type'].startswith("text/html"):
@@ -65,8 +65,8 @@ class RobotsTxt(Document):
 
     def _get_robot_parser(self):
         try:
-            return pickle.loads(self.robot_parser_pickle)
-        except TypeError:
+            return pickle.loads(str(self.robot_parser_pickle))
+        except (TypeError, IndexError):
             parser = RobotFileParser()
             parser.set_url(str(self.protocol) + "://" + str(self.domain) + \
                            "/robots.txt")
