@@ -59,6 +59,8 @@ CELERY_SEND_TASK_ERROR_EMAILS = True
 CELERY_QUEUES = queues.CELERY_QUEUES
 CELERY_ROUTES = queues.CELERY_ROUTES
 
+# Celery tasks
+CELERY_IMPORTS = ("rdc_crawler.crawler.celery.tasks", )
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'

@@ -79,7 +79,7 @@ class RobotsTxt(Document):
     robot_parser = property(_get_robot_parser, _set_robot_parser)
 
     def is_valid(self):
-        return (time.time() - self.robot_parser.mtime() < 7 * 24 * 60 * 60)
+        return (time.time() - self.robot_parser.mtime()) < 7 * 24 * 60 * 60
 
     def update(self):
         while cache.get(self.domain) is not None:
@@ -103,7 +103,7 @@ class RobotsTxt(Document):
             doc = RobotsTxt.load(settings.DB, result.rows[0].value)
             if doc.is_valid():
                 return doc
-        else:
-            doc = RobotsTxt(protocol=protocol, domain=domain)
+            else:
+                doc = RobotsTxt(protocol=protocol, domain=domain)
         doc.update()
         return doc

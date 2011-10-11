@@ -14,6 +14,7 @@ Long description
 from celery.decorators import task
 import rdc_crawler.crawler.models as models
 
+
 @task
 def retrieve_page(url):
     page = models.Page.get_by_url(url)
@@ -22,9 +23,9 @@ def retrieve_page(url):
 
     find_links.delay(page.id)
     
-    
-def find_links():
-    pass
+@task
+def find_links(url):
+    return url
 
 
 if __name__ == '__main__':

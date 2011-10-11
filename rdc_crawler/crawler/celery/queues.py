@@ -23,9 +23,10 @@ CELERY_QUEUES = {
 
 class MyRouter(object):
     def route_for_task(self, task, args=None, kwargs=None):
-        if task == "rdc_crawler.celery.tasks.retrieve_page":
+        if task == "rdc_crawler.crawler.celery.tasks.retrieve_page":
             return { "queue": "retrieve" }
         else:
             return { "queue": "process" }
 
 CELERY_ROUTES = (MyRouter(), )
+
