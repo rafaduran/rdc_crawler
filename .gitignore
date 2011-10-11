@@ -8,3 +8,4 @@ pep8.txt
 pylint.txt
 celerybeat-schedule
 .fabricrc
+*.log
