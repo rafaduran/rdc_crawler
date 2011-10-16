@@ -11,8 +11,11 @@ Long description
 
 .. moduleauthor::rdc
 """
+import re
+import urlparse
 from celery.decorators import task
 import rdc_crawler.crawler.models as models
+import rdc_crawler.settings as settings
 
 
 @task
@@ -25,8 +28,45 @@ def retrieve_page(url):
 
 
 @task
-def find_links(url):
-    return url
+def find_links(doc_id):
+    link_single_re = re.compile(r"<a[^>]+href='([^']+)'")
+    link_double_re = re.compile(r'<a[^>]+href="([^"]+)"')
+
+    doc = models.Page.load(settings.DB, doc_id)
+
+    raw_links = []
+    for match in link_single_re.finditer(doc.content):
+        raw_links.append(match.group(1))
+    for match in link_double_re.finditer(doc.content):
+        raw_links.append(match.group(1))
+
+    doc.links = []
+    for link in raw_links:
+        if link.startswith('#'):
+            continue
+        elif link.startswith('http://') or link.startswith('https://'):
+            continue
+        elif link.startswith('/'):
+            parse = urlparse.urlparse(doc['url'])
+            link = parse.scheme + '://' + parse.netloc + link
+            
+        doc.links.append(urlparse.unquote(link.split("#")[0]))
+
+    doc.store(settings.DB)
+
+    calculate_rank.delay(doc.id)
+
+    for link in doc.links:
+        page = models.Page.get_by_url(link, update=False)
+        if page is not None:
+            calculate_rank.delay(page.id)
+        else:
+            retrieve_page.delay(link)
+
+
+@task
+def calculate_rank(doc_id):
+    pass
 
 
 if __name__ == '__main__':
