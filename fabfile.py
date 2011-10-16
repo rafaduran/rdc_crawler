@@ -5,7 +5,8 @@ import fabric.context_managers as fcm
 import fabric.contrib.console as console
 
 
-def run_checks():
+def checks():
+    fapi.local("rm *.txt")
     fapi.local("tools/run_checks.sh")
 
 

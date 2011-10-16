@@ -36,7 +36,12 @@ load-plugins=
 # C0111: Don't require docstrings on every method
 # W0511: TODOs in code comments are fine.
 # W0142: *args and **kwargs are fine.
-disable=C0111,W0511,W0142
+# E1101: Unexistent members are ok
+# R0903: too fee public methods are ok
+# R0904: too much  public methods are ok
+# W0401: wild import are ok
+# W0614: unused imports are ok
+disable=C0111,W0511,W0142,E1101,R0903,R0904,W0401,W0614
 
 [REPORTS]
 

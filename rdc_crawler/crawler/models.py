@@ -97,7 +97,8 @@ class RobotsTxt(Document):
 
     @staticmethod
     def get_by_domain(protocol, domain):
-        result = settings.DB.view("robotstxt/by_domain", Key=[protocol, domain])
+        result = settings.DB.view("robotstxt/by_domain",
+                                  Key=[protocol, domain])
 
         if len(result) > 0:
             doc = RobotsTxt.load(settings.DB, result.rows[0].value)

@@ -12,10 +12,11 @@ from django.core.management.base import BaseCommand
 
 import rdc_crawler.crawler.celery.tasks as tasks
 
+
 class Command(BaseCommand):
     """
     Initialization description
-    
+
     Args.
         arg...
     """

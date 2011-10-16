@@ -6,27 +6,28 @@
 =====================================
 Long description
 
-.. module:: rdc_crawler.crawler.celery.queues 
+.. module:: rdc_crawler.crawler.celery.queues
     :synopsis: Short description
-    
+
 .. moduleauthor::rdc
 """
 CELERY_QUEUES = {
-    "retrieve": 
-        {"exchange": "default", "exchange_type": "direct", 
+    "retrieve":
+        {"exchange": "default", "exchange_type": "direct",
          "routing_key": "retrieve"},
-    "process": 
-        {"exchange": "default", "exchange_type": "direct", 
+    "process":
+        {"exchange": "default", "exchange_type": "direct",
          "routing_key": "process "},
-    "celery": {"exchange": "default", "exchange_type": "direct", 
+    "celery": {"exchange": "default", "exchange_type": "direct",
                "routing_key": "celery"}}
 
+
 class MyRouter(object):
-    def route_for_task(self, task, args=None, kwargs=None):
+    def route_for_task(self, task,  # pylint:disable=R0201
+                       args=None, kwargs=None):  # pylint:disable=W0613
         if task == "rdc_crawler.crawler.celery.tasks.retrieve_page":
-            return { "queue": "retrieve" }
+            return {"queue": "retrieve"}
         else:
-            return { "queue": "process" }
+            return {"queue": "process"}
 
 CELERY_ROUTES = (MyRouter(), )
-

@@ -156,9 +156,9 @@ INSTALLED_APPS = (
 
 # LOCAL SETTINGS, OVERRITING GLOBALS
 try:
-    from rdc_crawler.local.local_settings import * #@UnusedWildImport
+    from rdc_crawler.local.local_settings import *  # @UnusedWildImport
     try:
-        server = couchdb.Server(SERVER) # pylint:disable=C0103
+        server = couchdb.Server(SERVER)  # pylint:disable=C0103
         server.resource.credentials = (COUCH_USER, COUCH_PASS)
         DB = server['crawler']
     except couchdb.http.ResourceNotFound:

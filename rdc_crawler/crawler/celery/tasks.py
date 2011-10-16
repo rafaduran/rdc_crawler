@@ -22,7 +22,8 @@ def retrieve_page(url):
         return
 
     find_links.delay(page.id)
-    
+
+
 @task
 def find_links(url):
     return url
