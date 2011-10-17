@@ -3,7 +3,7 @@
    "language": "javascript",
    "views": {
        "by_url": {
-           "map": "function(doc) { emit([doc.url], doc._id); }"
+           "map": "function(doc) { emit(doc.url, doc._id); }"
        }
    }
 }
