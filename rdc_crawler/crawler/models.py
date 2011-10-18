@@ -57,7 +57,7 @@ class Page(Document):
         self.store(settings.DB)
 
     def is_valid(self):
-        return (time.time() - self.robot_parser.mtime()) < 7 * 24 * 60 * 60
+        return (datetime.now() - self.last_checked).days < 7
 
 
 class RobotsTxt(Document):
