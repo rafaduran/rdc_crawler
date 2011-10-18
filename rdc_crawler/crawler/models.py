@@ -51,7 +51,7 @@ class Page(Document):
         resp = urlopen(req)
         if not resp.info()['Content-Type'].startswith("text/html"):
             return
-        self.content = resp.read().decode("utf-8")
+        self.content = resp.read().decode('utf-8', 'ignore')
         self.last_checked = datetime.now()
 
         self.store(settings.DB)
