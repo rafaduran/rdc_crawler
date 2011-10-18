@@ -16,7 +16,7 @@ import rdc_crawler.settings as settings
 
 
 class Page(Document):
-    type = TextField(default="page")
+    doc_type = TextField(default="page")
     url = TextField()
     content = TextField()
     links = ListField(TextField())
@@ -58,7 +58,7 @@ class Page(Document):
 
 
 class RobotsTxt(Document):
-    type = TextField(default="robotstxt")
+    doc_type = TextField(default="robotstxt")
     domain = TextField()
     protocol = TextField()
     robot_parser_pickle = TextField()
