@@ -56,6 +56,9 @@ class Page(Document):
 
         self.store(settings.DB)
 
+    def is_valid(self):
+        return (time.time() - self.robot_parser.mtime()) < 7 * 24 * 60 * 60
+
 
 class RobotsTxt(Document):
     doc_type = TextField(default="robotstxt")
@@ -104,7 +107,7 @@ class RobotsTxt(Document):
             doc = RobotsTxt.load(settings.DB, result.rows[0].value)
             if doc.is_valid():
                 return doc
-            else:
-                doc = RobotsTxt(protocol=protocol, domain=domain)
+        else:
+            doc = RobotsTxt(protocol=protocol, domain=domain)
         doc.update()
         return doc
