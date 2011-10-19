@@ -21,7 +21,7 @@ import rdc_crawler.settings as settings
 @task
 def retrieve_page(url):
     page = models.Page.get_by_url(url)
-    if page is None:
+    if page is None or page.id is None:
         return
 
     find_links.delay(page.id)
@@ -35,10 +35,15 @@ def find_links(doc_id):
     doc = models.Page.load(settings.DB, doc_id)
 
     raw_links = []
-    for match in link_single_re.finditer(doc.content):
-        raw_links.append(match.group(1))
-    for match in link_double_re.finditer(doc.content):
-        raw_links.append(match.group(1))
+    
+    try:
+        for match in link_single_re.finditer(doc.content):
+            raw_links.append(match.group(1))
+        for match in link_double_re.finditer(doc.content):
+            raw_links.append(match.group(1))
+    except TypeError:
+        # Content is not a string
+        pass
 
     doc.links = []
     parse = urlparse.urlparse(doc['url'])

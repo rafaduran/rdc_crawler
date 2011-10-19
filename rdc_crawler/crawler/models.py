@@ -26,7 +26,7 @@ class Page(Document):
     @staticmethod
     def get_by_url(url, update=True):
         result = settings.DB.view("page/by_url", key=url)
-        if len(result.rows) == 1:
+        if len(result.rows):
             doc = Page.load(settings.DB, result.rows[0].value)
             if doc.is_valid():
                 return doc
@@ -48,7 +48,13 @@ class Page(Document):
 
         cache.set(parse.netloc, True, 10)
         req = Request(self.url, None, {"User-Agent": settings.USER_AGENT})
-        resp = urlopen(req)
+
+        try:
+            resp = urlopen(req)
+        except ValueError:
+            # If value error occurs, link is probably a file that can't be open
+            return
+
         if not resp.info()['Content-Type'].startswith("text/html"):
             return
         self.content = resp.read().decode('utf-8', 'ignore')
