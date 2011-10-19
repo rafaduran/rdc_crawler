@@ -41,13 +41,13 @@ def find_links(doc_id):
         raw_links.append(match.group(1))
 
     doc.links = []
+    parse = urlparse.urlparse(doc['url'])
     for link in raw_links:
         if link.startswith('#'):
             continue
         elif link.startswith('http://') or link.startswith('https://'):
-            continue
+            pass
         elif link.startswith('/'):
-            parse = urlparse.urlparse(doc['url'])
             link = parse.scheme + '://' + parse.netloc + link
             
         doc.links.append(urlparse.unquote(link.split("#")[0]))
