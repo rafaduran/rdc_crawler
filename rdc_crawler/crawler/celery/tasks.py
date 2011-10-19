@@ -11,6 +11,7 @@ Long description
 
 .. moduleauthor::rdc
 """
+from __future__ import division
 import re
 import urlparse
 from celery.decorators import task
@@ -71,7 +72,30 @@ def find_links(doc_id):
 
 @task
 def calculate_rank(doc_id):
-    pass
+    page = models.Page.load(settings.DB, doc_id)
+    if not page:
+        return
+    links = models.Page.get_links_to_url(page.url)
+
+    rank = 0
+    for link in links:
+        # link.value[0] -> doc.rank
+        # link.value[1] -> doc.links.length
+        rank += link.value[0] / link.value[1]
+
+    old_rank = page.rank
+    page.rank = rank * 0.85
+
+    if page.rank == 0:
+        page.rank = 1.0/settings.DB.view("page/by_url", limit=0).total_rows
+
+    if abs(old_rank - page.rank) > 0.0001:
+        page.store(settings.DB)
+
+        for link in page.links:
+            linked_page = models.Page.get_by_url(link, update=False)
+            if linked_page is not None:
+                calculate_rank.delay(linked_page.id)
 
 
 if __name__ == '__main__':

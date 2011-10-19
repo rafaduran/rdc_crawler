@@ -37,6 +37,10 @@ class Page(Document):
         doc.update()
         return doc
 
+    @staticmethod
+    def get_links_to_url(url):
+        return settings.DB.view("page/links_to_url", key=url).rows
+
     def update(self):
         parse = urlparse(self.url)
         robotstxt = RobotsTxt.get_by_domain(parse.scheme, parse.netloc)
