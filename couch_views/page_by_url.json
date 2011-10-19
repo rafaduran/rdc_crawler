@@ -1,9 +1,0 @@
-{
-   "_id": "_design/page",
-   "language": "javascript",
-   "views": {
-       "by_url": {
-           "map": "function(doc) { if(doc.doc_type == 'page') { emit(doc.url, doc._id); } }"
-       }
-   }
-}
