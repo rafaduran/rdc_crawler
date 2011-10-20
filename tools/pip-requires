@@ -13,3 +13,4 @@ pysqlite
 Fabric
 Jinja2
 -e git://github.com/rafaduran/kombu.git#egg=Kombu
+Whoosh
