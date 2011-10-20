@@ -9,3 +9,4 @@ pylint.txt
 celerybeat-schedule
 .fabricrc
 *.log
+index/
