@@ -20,3 +20,5 @@ borker_user =
 broker_pass =
 broker_vhost =
 code_dir =
+whoosh_path =
+lock_attempts = 

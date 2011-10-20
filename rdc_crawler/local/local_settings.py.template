@@ -64,5 +64,8 @@ CELERY_IMPORTS = ("rdc_crawler.crawler.celery.tasks", )
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = os.path.dirname(os.path.join(os.path.abspath(__file__),
-                                    '..','..'))
+EMAIL_FILE_PATH = os.path.dirname(os.path.join(os.path.dirname(__file__),
+                                    '..','..', '..'))
+# Whoosh configuration
+WHOOSH_PATH = {{ whoosh_path if whoosh_path is defined else code_dir }}
+LOCK_ATTEMPTS = {{ lock_attempts if lock_attempts is defined else 5 }}

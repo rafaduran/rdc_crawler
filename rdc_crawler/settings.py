@@ -1,4 +1,5 @@
 # Django settings for rdc_crawler project.
+import os
 
 import couchdb
 
@@ -167,6 +168,9 @@ except ImportError as e:
     print("local/local_settings.py not found!")
     print("Use local/local_settings.py.template")
     raise e
+
+if not os.path.exists(EMAIL_FILE_PATH):
+    os.mkdir(EMAIL_FILE_PATH)
 
 # Celery
 import djcelery
