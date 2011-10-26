@@ -21,4 +21,5 @@ broker_pass =
 broker_vhost =
 code_dir =
 whoosh_path =
-lock_attempts = 
+lock_attempts =
+vagrant_host =
