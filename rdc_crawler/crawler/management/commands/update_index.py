@@ -16,7 +16,7 @@ from django.core.management.base import BaseCommand
 
 import rdc_crawler.crawler.whoosher as whoosher
 import rdc_crawler.crawler.coucher as coucher
-import settings
+import rdc_crawler.settings as settings
 
 
 class Command(BaseCommand):
@@ -56,9 +56,8 @@ class Command(BaseCommand):
                         rank=doc["rank"],
                         content=unicode(soup.title(text=True)[0] + "\n" +
                             doc["url"] + "\n" + "".join(soup.body(text=True))))
-                    writer.commi()
+                    writer.commit()
                     writer = whoosher.get_writer()
                 coucher.set_last_change(since)
         finally:
             coucher.set_last_change(since)
-

@@ -43,6 +43,7 @@ class Page(Document):
 
     def update(self):
         parse = urlparse(self.url)
+        print(parse.scheme, parse.netloc)
         robotstxt = RobotsTxt.get_by_domain(parse.scheme, parse.netloc)
         if not robotstxt.is_allowed(parse.netloc):
             return False
@@ -100,6 +101,7 @@ class RobotsTxt(Document):
         cache.set(self.domain, True, 10)
 
         parser = self.robot_parser
+        print(parser.url)
         parser.read()
         parser.modified()
         self.robot_parser = parser

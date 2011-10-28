@@ -11,22 +11,22 @@ import whoosh.index as windex
 from whoosh.store import LockError
 
 import rdc_crawler.settings as settings
-    
-schema = Schema(title=TEXT(stored=True), 
-                url=ID(stored=True, unique=True), 
-                desc=ID(stored=True), 
-                rank=NUMERIC(stored=True, type=float), 
+
+SCHEMA = Schema(title=TEXT(stored=True),
+                url=ID(stored=True, unique=True),
+                desc=ID(stored=True),
+                rank=NUMERIC(stored=True, type=float),
                 content=TEXT)
 
 
 def get_index(path):
     """
     Return the current index object if there is one.
-    If not attempt to open the index in path. 
+    If not attempt to open the index in path.
     If there isn't one in the dir, create one. If there is
     not dir, create the dir.
     """
-  
+
     if windex.exists_in(path):
         # For now don't trap exceptions, as we don't know what they
         # will be and so we want them to raise destructively.
@@ -36,10 +36,10 @@ def get_index(path):
             os.mkdir(path)
         except OSError:
             pass
-        index = windex.create_in(path, schema)
+        index = windex.create_in(path, SCHEMA)
     return index
-  
-  
+
+
 def get_writer(path='{0}/index/'.format(settings.WHOOSH_PATH)):
     """
     Return a writer
@@ -52,9 +52,9 @@ def get_writer(path='{0}/index/'.format(settings.WHOOSH_PATH)):
             attempts += 1
             try:
                 writer = get_index(path).writer()
-            except LockError, exc:
+            except LockError as exc:
                 time.sleep(.1)
     except:
-        logging.debug('whoosher: exception getting writer: %s', format_exc())
+        logging.debug('whoosher: exception getting writer: %s',
+                format_exc(exc))
     return writer
-

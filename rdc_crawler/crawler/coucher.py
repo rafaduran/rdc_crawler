@@ -13,7 +13,8 @@ Long description
 """
 import couchdb
 
-import settings
+import rdc_crawler.settings as settings
+
 
 def set_last_change(last):
     settings.DB.save(last)
@@ -25,4 +26,3 @@ def get_last_change():
     except couchdb.http.ResourceNotFound:
         last = settings.DB['last_changed'] = dict(last_seq=0)
         return last
-

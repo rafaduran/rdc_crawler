@@ -36,7 +36,7 @@ def find_links(doc_id):
     doc = models.Page.load(settings.DB, doc_id)
 
     raw_links = []
-    
+
     try:
         for match in link_single_re.finditer(doc.content):
             raw_links.append(match.group(1))
@@ -55,7 +55,7 @@ def find_links(doc_id):
             pass
         elif link.startswith('/'):
             link = parse.scheme + '://' + parse.netloc + link
-            
+
         doc.links.append(urlparse.unquote(link.split("#")[0]))
 
     doc.store(settings.DB)
@@ -87,7 +87,7 @@ def calculate_rank(doc_id):
     page.rank = rank * 0.85
 
     if page.rank == 0:
-        page.rank = 1.0/settings.DB.view("page/by_url", limit=0).total_rows
+        page.rank = 1.0 / settings.DB.view("page/by_url", limit=0).total_rows
 
     if abs(old_rank - page.rank) > 0.0001:
         page.store(settings.DB)
