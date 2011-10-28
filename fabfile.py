@@ -19,8 +19,9 @@ api.env.roledefs.update({
 
 
 def checks():
-    api.local("rm *.txt")
-    api.local("tools/run_checks.sh")
+    with api.settings(warn_only=True):
+        api.local("rm *.txt")
+        api.local("tools/run_checks.sh")
 
 
 def set_local_settings(settings=None, src='rdc_crawler/local/'
