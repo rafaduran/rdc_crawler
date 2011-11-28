@@ -99,10 +99,6 @@ def create_virtualenv(venv=VENV):
 
 def install_dependencies(venv=VENV):
     print 'Installing dependencies with pip (this can take a while)...'
-    # Install greenlet by hand - just listing it in the requires file does not
-    # get it in stalled in the right order
-    run_command(['tools/with_venv.sh', 'pip', 'install', '-E', venv,
-              'greenlet'], redirect_output=False)
     run_command(['tools/with_venv.sh', 'pip', 'install', '-E', venv, '-r',
               PIP_REQUIRES], redirect_output=False)
 
