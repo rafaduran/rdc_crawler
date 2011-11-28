@@ -16,6 +16,7 @@ except ImportError:
     import json
 
 from django.core.management.base import NoArgsCommand
+import couchdb
 
 import rdc_crawler.settings as settings
 
@@ -32,4 +33,12 @@ class Command(NoArgsCommand):
         
         for filename in couch_files:
             doc = json.loads(open(filename,'rt').read())
-            db[doc["_id"]] = doc 
+            try:
+                db_doc = db[doc["_id"]]
+            except couchdb.http.ResourceNotFound:
+                db[doc["_id"]] = doc
+            else:
+                # Document exists, so checking if there is any change
+                if doc["views"] != db_doc['views']:
+                    db_doc['views'] = doc["views"]
+                    db.save(db_doc)
