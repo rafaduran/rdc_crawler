@@ -23,3 +23,7 @@ code_dir =
 whoosh_path =
 lock_attempts =
 vagrant_host =
+user =
+password =
+vagrant_path =
+myroles =
