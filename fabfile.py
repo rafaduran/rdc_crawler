@@ -1,3 +1,4 @@
+import sys
 import fabric.api as api
 import fabric.contrib.files as files
 import fabric.operations as operations
@@ -7,9 +8,7 @@ from fabric.decorators import roles
 import fabric.contrib.project as project
 
 api.env.roledefs = {}
-
-for role in api.env.myroles.split():
-    api.env.roledefs[role] = []
+api.env.roledefs = dict([(role, []) for role in api.env.myroles.split()])
 
 ###################
 # Vagrant methods #
@@ -55,7 +54,6 @@ def _get_vagrant_config(path=None):
 
 
 def _vagrant():
-    print("llega")
     api.env.settings = 'vagrant'
     api.env.conf = conf = _get_vagrant_config()
     api.env.key_filename = []
@@ -77,13 +75,12 @@ def checks():
         api.local("tools/run_checks.sh")
 
 
-def set_local_settings(settings=None, src='rdc_crawler/local/'
+@roles('worker')
+def configure(settings=None, src='rdc_crawler/local/'
                        'local_settings.py.template',
                        dest='/tmp/local_settings.py'):
     if not settings:
-        if api.env.has_key('broker_port'):
-            api.env.broker_port = int(api.env.broker_port)
-            settings = api.env
+        settings = api.env
     files.upload_template(src, dest, context=settings,use_jinja=True)
 
 
@@ -134,3 +131,6 @@ def show_settings(enviro=None, *args, **kwargs):
     if not enviro is None:
         globals()[enviro](*args, **kwargs)
     print(api.env)
+
+if not '--list' in sys.argv and api.env.get('enviro', None) == 'vagrant':
+    _vagrant()
