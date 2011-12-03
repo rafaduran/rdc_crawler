@@ -8,9 +8,9 @@ import rdc_crawler.crawler.celery.queues as queues
 
 # Crawler configuration
 # CouchDb host
-SERVER = 'http://{{ couch_host if couch_host is defined else "localhost" }}:{{ couch_port if couch_host is defined else 5984 }}/{{ couch_path }}'
+SERVER = 'http://{{ couch_host if couch_host is defined else "localhost" }}{{ ':' + couch_port if couch_port is defined }}/{{ couch_vhost }}'
 # Crawler user-agent
-USER_AGENT = '{{ user_agent if user_agent is defined else "User-Agent/1.0"}}'
+USER_AGENT = '{{ user_agent if user_agent is defined else "Rdc-Crawler/0.0"}}'
 # CouchDB user
 COUCH_USER = '{{ couch_user }}'
 # CouchDB user password
@@ -43,8 +43,8 @@ SECRET_KEY = '{{ secret_key }}'
 # Broker settings
 BROKER_TRANSPORT = 'couchdb'
 BROKER_HOST = '{{ broker_host }}'
-BROKER_PORT = {{ broker_port }}
-BROKER_USER = '{{ borker_user }}'
+BROKER_PORT = '{{ broker_port }}'
+BROKER_USER = '{{ broker_user }}'
 BROKER_PASSWORD = '{{ broker_pass }}'
 BROKER_VHOST = '{{ broker_vhost }}'
 
@@ -67,5 +67,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.dirname(os.path.join(os.path.dirname(__file__),
                                     '..','..', '..'))
 # Whoosh configuration
-WHOOSH_PATH = {{ whoosh_path if whoosh_path is defined else code_dir }}
+WHOOSH_PATH = '{{ whoosh_path if whoosh_path is defined else code_dir }}'
 LOCK_ATTEMPTS = {{ lock_attempts if lock_attempts is defined else 5 }}
