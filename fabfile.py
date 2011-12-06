@@ -72,25 +72,28 @@ def configure_workers(src=None, dest=None,**kwargs):
 @task
 @roles('worker')
 @parallel
-def update_src(path=None, src=None):
+def update_src(path=None, src=None, delete=False):
     """
     Synchronizes workers with local changes via rsync
     """
-    operations.require('settings', provided_by=[api.env.enviro])
-    if path is None:
-        path = "{base_path}".format(base_path=api.env.code_dir)
-    project.rsync_project(remote_dir=path,
+    path = value_or_take_from_env(path, "{code_dir}")
+    project.rsync_project(remote_dir=path, delete=delete,
                       exclude=("*.pyc", "whoosh", ".crawler-venv", ".git"))
 
 
 @task
-def show_settings(enviro=None, *args, **kwargs):
+def show_settings(*args):
     """
     Prints settings
     """
-    print(api.env)
+    if args:
+        for arg in args:
+            print('{arg}: {value}'.format(arg=arg, value=api.env[arg]))
+    else:
+        print(api.env)
 
 
+@task
 @roles('worker')
 @parallel
 def celery(command='start'):

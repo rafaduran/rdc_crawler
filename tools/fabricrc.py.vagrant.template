@@ -40,3 +40,4 @@ VAGRANT_PATH = "/opt/workspace/chef-crawler"
 ENVIRO = "vagrant"
 KEY_FILENAME = "/home/rdc/.ssh/crawler_rsa.pub"
 NEW_STYLE_TASKS = True
+PORT = '22'
