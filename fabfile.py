@@ -62,7 +62,7 @@ def configure_workers(src=None, dest=None,**kwargs):
     src = value_or_take_from_env(src,
         'rdc_crawler/local/local_settings.py.template')
     dest = value_or_take_from_env(dest,
-        '{code_dir}/rdc_crawler/loca/local_settings.py')
+        '{code_dir}/rdc_crawler/local/local_settings.py')
     conf = api.env
     if kwargs:
         conf.update(kwargs)
@@ -102,3 +102,15 @@ def celery(command='start'):
     """
     operations.require('settings', provided_by=[api.env.enviro])
     api.sudo("service celery {command}".format(command=command))
+
+@task
+@parallel
+@roles('worker')
+def log():
+    """
+    Shows workers Celery log until Ctrl-c is pressed
+    """
+    try:
+        api.run("tail -f /var/log/celery/celery.log")
+    except KeyboardInterrupt:
+        pass
