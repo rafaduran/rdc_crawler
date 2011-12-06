@@ -10,3 +10,4 @@ celerybeat-schedule
 .fabricrc
 *.log
 index/
+fabricrc.py

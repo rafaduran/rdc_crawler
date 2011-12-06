@@ -1,136 +1,101 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+"""
+rdc-crawler Fabric deployment script
+"""
 import sys
 import fabric.api as api
 import fabric.contrib.files as files
 import fabric.operations as operations
-import fabric.context_managers as fcm
+import fabric.context_managers as context
 import fabric.contrib.console as console
-from fabric.decorators import roles
+from fabric.decorators import roles, parallel, runs_once, task
 import fabric.contrib.project as project
 
-api.env.roledefs = {}
-api.env.roledefs = dict([(role, []) for role in api.env.myroles.split()])
+try:
+    import fabricrc
+except ImportError:
+    print("No fabricrc.py configuration file could be found,"
+          "  please provide one")
+    sys.exit()
 
-###################
-# Vagrant methods #
-###################
-def _get_vagrant_hosts(path=None):
-    if not path:
-        path = api.env.vagrant_path
-
-    result = api.local("cd {path} && vagrant status".format(path=path),
-                       capture=True)
-    hosts = []
-    api.env.host_alive = {}
-    for line in iter(result.splitlines()[2:-4]):
-        parts = line.split()
-        hosts.append(parts[0])
-        api.env.host_alive[parts[0]] =\
-            True if parts[1] == 'running' else False
-    return hosts
+# Source configuration
+for flag in dir(fabricrc):
+    if not flag.startswith('__'):
+        api.env[flag.lower()] = getattr(fabricrc, flag)
+api.env.settings = 'global'
 
 
-def _get_vagrant_config(path=None):
-    """
-    Parses vagrant configuration and returns it as dict of ssh parameters
-    and their values
-    """
-    if not path:
-        path = api.env.vagrant_path
-    hosts = _get_vagrant_hosts(path)
-    conf = {}
-    for host in hosts:
-        if not api.env.host_alive[host]:
-            api.local('cd {path} && vagrant up {host}'.format(host=host,
-                                                           path=path))
-
-        result = api.local('cd {path} && vagrant ssh_config {host}'.format(
-                            host=host, path=path), capture=True)
-        conf[host] = {}
-        for line in iter(result.splitlines()):
-            parts = line.split()
-            conf[host][parts[0]] = ' '.join(parts[1:])
-
-    return conf
+def value_or_take_from_env(value, string):
+    if value is None:
+        value = value = string.format(**api.env)
+    return value
 
 
-def _vagrant():
-    api.env.settings = 'vagrant'
-    api.env.conf = conf = _get_vagrant_config()
-    api.env.key_filename = []
-    api.env.hostnames = []
-    for host in conf.keys():
-        for role in api.env.roledefs.keys():
-            hoststring = "{user}@{host}:{port}".format(
-                        user=conf[host]['User'], host=conf[host]['HostName'],
-                        port=conf[host]['Port'])
-            if host.startswith(role):
-                api.env.roledefs[role].append(hoststring)
-        api.env.key_filename.append(conf[host]['IdentityFile'])
-        api.env.all_hosts.append(hoststring)
-
-
+@task
 def checks():
+    """
+    Runs pep8 and pylint checkers
+    """
     with api.settings(warn_only=True):
         api.local("rm *.txt")
         api.local("tools/run_checks.sh")
 
+@task
+def vagrant_prepare():
+    """
+    Installs Vagrant and Virtual Box
+    """
+    api.local('sudo tools/vprepare.sh')
 
+
+@task
 @roles('worker')
-def configure(settings=None, src='rdc_crawler/local/'
-                       'local_settings.py.template',
-                       dest='/tmp/local_settings.py'):
-    if not settings:
-        settings = api.env
-    files.upload_template(src, dest, context=settings,use_jinja=True)
-
-
-def install_venv(path=None):
-    if path:
-        api.run('cd {0}'.format(path))
-    api.run('python tools/install_venv.py')
-
-
-def install_external_deps():
-    operations.sudo("apt-get -y install libmemcached-dev libmysqlclient-dev"
-             " libsqlite3-dev git")
-
-
-def local_changes():
-    branch = api.local("git branch",capture=True)[2:]
-    remote = api.local("git remote show",capture=True)
-    return bool(api.local("git diff {0}/{1}".format(remote,branch),
-                           capture=True))
-
-@api.roles('worker')
-def update_src(path=None):
-    project.rsync_project(remote_dir=api.env.code_dir,
-                      exclude=("*.pyc", ".crawler-venv"))
-
-
-def bootstrap(path=None):
-    if not path:
-        path = api.env.code_dir
-    install_external_deps()
-    if not files.exists(api.env.code_dir):
-        api.run('git clone git://github.com/rafaduran/rdc_crawler.git {0}'.\
-                 format(path))
-    update_src(path)
-
-
-@roles('vagrant-host')
-def vprepare():
+@parallel
+def configure_workers(src=None, dest=None,**kwargs):
     """
-    Installs Vagrant and Virtual Box 
+    Updates local_settings.py on worker nodes. Default values are taken from
+    configuration file and any given keyword argument will override default
+    settings.
     """
-    api.put('tools/vprepare.sh','/tmp/',mirror_local_mode=True)
-    with fcm.cd('/tmp/'):
-        api.sudo('./vprepare.sh')
+    src = value_or_take_from_env(src,
+        'rdc_crawler/local/local_settings.py.template')
+    dest = value_or_take_from_env(dest,
+        '{code_dir}/rdc_crawler/loca/local_settings.py')
+    conf = api.env
+    if kwargs:
+        conf.update(kwargs)
+    files.upload_template(src, dest, context=conf, use_jinja=True)
 
 
+@task
+@roles('worker')
+@parallel
+def update_src(path=None, src=None):
+    """
+    Synchronizes workers with local changes via rsync
+    """
+    operations.require('settings', provided_by=[api.env.enviro])
+    if path is None:
+        path = "{base_path}".format(base_path=api.env.code_dir)
+    project.rsync_project(remote_dir=path,
+                      exclude=("*.pyc", "whoosh", ".crawler-venv", ".git"))
+
+
+@task
 def show_settings(enviro=None, *args, **kwargs):
-    if not enviro is None:
-        globals()[enviro](*args, **kwargs)
+    """
+    Prints settings
+    """
     print(api.env)
 
-if not '--list' in sys.argv and api.env.get('enviro', None) == 'vagrant':
-    _vagrant()
+
+@roles('worker')
+@parallel
+def celery(command='start'):
+    """
+    Manages celery workers daemon
+    """
+    operations.require('settings', provided_by=[api.env.enviro])
+    api.sudo("service celery {command}".format(command=command))
