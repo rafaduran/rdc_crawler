@@ -6,7 +6,8 @@ import pickle
 from robotparser import RobotFileParser
 import time
 from urlparse import urlparse
-from urllib2 import urlopen, Request
+from urllib2 import urlopen, Request, HTTPError, URLError
+import logging
 
 from django.core.cache import cache
 from couchdb.mapping import (TextField, ListField, FloatField, DateTimeField,
@@ -43,12 +44,13 @@ class Page(Document):
 
     def update(self):
         parse = urlparse(self.url)
-        print(parse.scheme, parse.netloc)
         robotstxt = RobotsTxt.get_by_domain(parse.scheme, parse.netloc)
         if not robotstxt.is_allowed(parse.netloc):
             return False
 
         while cache.get(parse.netloc) is not None:
+            logging.debug("sleeping before updating: {loc}".format(
+                            loc=parse.netloc))
             time.sleep(1)
 
         cache.set(parse.netloc, True, 10)
@@ -56,11 +58,19 @@ class Page(Document):
 
         try:
             resp = urlopen(req)
-        except ValueError:
-            # If value error occurs, link is probably a file that can't be open
+        except (ValueError, HTTPError, URLError), err:
+            # If error occurs, link is probably a file that can't be open
+            logging.error("Error opening {url}: {error}".format(url=self.url,
+                            error=type(err)))
+            # Since URL seems not to be valid, clean it
+            del settings.DB[self.id]
             return
 
-        if not resp.info()['Content-Type'].startswith("text/html"):
+        try:
+            if not resp.info()['Content-Type'].startswith("text/html"):
+                return
+        except KeyError:
+            del settings.DB[self.id]
             return
         self.content = resp.read().decode('utf-8', 'ignore')
         self.last_checked = datetime.now()
@@ -97,11 +107,13 @@ class RobotsTxt(Document):
 
     def update(self):
         while cache.get(self.domain) is not None:
+            logging.debug("sleeping before updating: {domain}".format(
+                            domain=self.domain))
             time.sleep(1)
         cache.set(self.domain, True, 10)
 
         parser = self.robot_parser
-        print(parser.url)
+        logging.debug(parser.url)
         parser.read()
         parser.modified()
         self.robot_parser = parser
