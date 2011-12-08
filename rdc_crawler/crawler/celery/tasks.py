@@ -39,7 +39,7 @@ def find_links(doc_id, links_callback=None, doc_callback=None):
     link_double_re = re.compile(r'<a[^>]+href="([^"]+)"')
 
     doc = models.Page.load(settings.DB, doc_id)
-    if not doc is None or not len(doc.content):
+    if doc is None or not len(doc.content):
         return
 
     raw_links = []
@@ -58,10 +58,13 @@ def find_links(doc_id, links_callback=None, doc_callback=None):
     for link in raw_links:
         if link.startswith('#'):
             continue
-        elif link.startswith('http://') or link.startswith('https://'):
+        elif link.startswith('http://') or link.startswith('https://') or\
+            link.stratswith('/www.'):
             pass
         elif link.startswith('/'):
             link = parse.scheme + '://' + parse.netloc + link
+        else:
+            link = parse.scheme + '://' + parse.netloc + '/' + link
 
         doc.links.append(iri_to_uri(link.split("#")[0]))
 

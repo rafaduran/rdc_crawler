@@ -55,7 +55,7 @@ class FilterByExtension(LinkParseable):
 
 
 class FilterKnownBadUrls(LinkParseable):
-    bad_urls = set(('javascript', 'mailto'))
+    bad_urls = set(('javascript', 'mailto', '__'))
     def parseable(self, link, bad_urls=bad_urls):
         for url in bad_urls:
             if link.startswith(url):

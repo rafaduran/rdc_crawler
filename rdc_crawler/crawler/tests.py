@@ -31,12 +31,21 @@ class FindLinksTest(TestCase):
     def test_find_links_ok(self):
         links = find_links(self.doc['_id'])
         self.assertListEqual(links,
-            [u'genindex.html', u'source/classes.html',  u'_images/schema.png',
-             u'source/classes.html', u'source/classes.html',
-             u'source/classes.html', u'source/classes.html',
-             u'source/classes.html', u'genindex.html', u'search.html',
-             u'source/classes.html', u'_sources/index.txt', u'genindex.html',
-             u'source/classes.html', u'http://sphinx.pocoo.org/'])
+            [u'http://rdc-blga.appspot.com/genindex.html',
+             u'http://rdc-blga.appspot.com/source/classes.html',
+             u'http://rdc-blga.appspot.com/_images/schema.png',
+             u'http://rdc-blga.appspot.com/source/classes.html',
+             u'http://rdc-blga.appspot.com/source/classes.html',
+             u'http://rdc-blga.appspot.com/source/classes.html',
+             u'http://rdc-blga.appspot.com/source/classes.html',
+             u'http://rdc-blga.appspot.com/source/classes.html',
+             u'http://rdc-blga.appspot.com/genindex.html',
+             u'http://rdc-blga.appspot.com/search.html',
+             u'http://rdc-blga.appspot.com/source/classes.html',
+             u'http://rdc-blga.appspot.com/_sources/index.txt',
+             u'http://rdc-blga.appspot.com/genindex.html',
+             u'http://rdc-blga.appspot.com/source/classes.html',
+             u'http://sphinx.pocoo.org/'])
 
     def test_parseable_ok(self):
         for link in [u'genindex.html', u'source/classes.html',
