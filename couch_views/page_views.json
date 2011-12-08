@@ -8,5 +8,8 @@
         "links_to_url": {
             "map": "function(doc) { if(doc.doc_type == 'page') { for(var i = 0; i < doc.links.length; i++) { emit(doc.links[i], [doc.rank, doc.links.length]);} } }"
         }
+        "doc_by_link": {
+           "map": "function(doc) {  if(doc.doc_type =='page') { for(var i=0; i < doc.links.length; i++) { emit(doc.links[i], doc._id);} } }"
+       }
     }
 }
