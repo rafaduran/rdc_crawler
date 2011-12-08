@@ -69,8 +69,6 @@ chat application/x-chat
 class application/java
 class application/java-byte-code
 class application/x-java-class
-com application/octet-stream
-com text/plain
 conf text/plain
 cpio application/x-cpio
 cpp text/x-c

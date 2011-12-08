@@ -55,11 +55,15 @@ def find_links(doc_id, links_callback=None, doc_callback=None):
 
     doc.links = []
     parse = urlparse.urlparse(doc['url'])
-    for link in raw_links:
-        if link.startswith('#'):
+    for index,link in enumerate(raw_links):
+        errors = plugins.parseable(link)
+        if errors:
+            logging.error(errors)
+            del raw_links[index]
             continue
-        elif link.startswith('http://') or link.startswith('https://') or\
-            link.stratswith('/www.'):
+        if link.startswith('#') or link.startswith("//"):
+            continue
+        elif link.startswith('http://') or link.startswith('https://'):
             pass
         elif link.startswith('/'):
             link = parse.scheme + '://' + parse.netloc + link
@@ -70,13 +74,10 @@ def find_links(doc_id, links_callback=None, doc_callback=None):
 
     doc.store(settings.DB)
 
+    # TODO: subtask this
     calculate_rank.delay(doc.id)
 
-    for link in doc.links:
-        errors = plugins.parseable(link)
-        if errors:
-            logging.error(errors)
-            continue
+    for index, link in enumerate(doc.links):
         page = models.Page.get_by_url(link, update=False)
         if page is None and not links_callback is None:
             # Do I need a substask or task here?

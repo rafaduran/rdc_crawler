@@ -14,6 +14,8 @@ Long description
 import abc
 import os
 
+# TODO: use django own validators
+
 EXT_FILE = '{ext_path}/extensions.txt'.format(ext_path=os.path.realpath(
                 os.path.split(__file__)[0] + "../../../../tools"))
 
@@ -55,10 +57,10 @@ class FilterByExtension(LinkParseable):
 
 
 class FilterKnownBadUrls(LinkParseable):
-    bad_urls = set(('javascript', 'mailto', '__'))
+    bad_urls = set(('javascript:', 'mailto:'))
     def parseable(self, link, bad_urls=bad_urls):
         for url in bad_urls:
-            if link.startswith(url):
+            if link.find(url) != -1:
                 raise ValueError('{link} is a known bad URL'.format(link=link))
 
 

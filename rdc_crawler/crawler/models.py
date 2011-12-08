@@ -29,7 +29,7 @@ class Page(Document):
         result = settings.DB.view("page/by_url", key=url)
         try:
             rows = result.rows
-        except TypeError:
+        except (TypeError, KeyError):
             logging.error("Error trying to get doc by url: {url}".format(
                             url=url))
             return
