@@ -7,11 +7,10 @@ pylint
 pep8
 python-memcached
 pylibmc
-MySQL-python>=1.2.2
-# Just for development
-pysqlite
+MySQL-python
 Fabric
 Jinja2
--e git://github.com/rafaduran/kombu.git#egg=Kombu
+Kombu
 Whoosh
 BeautifulSoup
+unittest2

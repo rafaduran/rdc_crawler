@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- Encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 from datetime import datetime
 import pickle
@@ -27,8 +27,16 @@ class Page(Document):
     @staticmethod
     def get_by_url(url, update=True):
         result = settings.DB.view("page/by_url", key=url)
-        if len(result.rows):
-            doc = Page.load(settings.DB, result.rows[0].value)
+        try:
+            rows = result.rows
+        except TypeError:
+            logging.error("Error trying to get doc by url: {url}".format(
+                            url=url))
+            return
+        if len(rows):
+            doc = Page.load(settings.DB, rows[0].value)
+            if doc is None:
+                return None
             if doc.is_valid():
                 return doc
         elif not update:
@@ -58,19 +66,17 @@ class Page(Document):
 
         try:
             resp = urlopen(req)
-        except (ValueError, HTTPError, URLError), err:
+        except (ValueError, HTTPError, URLError, UnicodeEncodeError), err:
             # If error occurs, link is probably a file that can't be open
             logging.error("Error opening {url}: {error}".format(url=self.url,
                             error=type(err)))
             # Since URL seems not to be valid, clean it
-            del settings.DB[self.id]
             return
 
         try:
             if not resp.info()['Content-Type'].startswith("text/html"):
                 return
         except KeyError:
-            del settings.DB[self.id]
             return
         self.content = resp.read().decode('utf-8', 'ignore')
         self.last_checked = datetime.now()
