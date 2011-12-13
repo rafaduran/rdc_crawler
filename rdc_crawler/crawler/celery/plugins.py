@@ -13,8 +13,14 @@ Long description
 """
 import abc
 import os
+import urllib2
+import platform
+import logging
+import django.core.validators as validators
+from django.core.exceptions import ValidationError
 
-# TODO: use django own validators
+import rdc_crawler.settings as settings
+
 
 EXT_FILE = '{ext_path}/extensions.txt'.format(ext_path=os.path.realpath(
                 os.path.split(__file__)[0] + "../../../../tools"))
@@ -41,27 +47,64 @@ class LinkParseable(object):
         pass
 
 
-class FilterByExtension(LinkParseable):
-    def __init__(self, ext_file=EXT_FILE):
-        self.wrong_extensions = set() 
-        with open(ext_file, 'rt') as  ext:
-            for line in ext:
-                self.wrong_extensions.add(line.split()[0])
-                
-    def parseable(self, link, extensions=None):
-        extensions = extensions or self.wrong_extensions
-        for extension in extensions:
-            if link.endswith('.{extension}'.format(extension=extension)):
-                raise ValueError("*.{extension} aren't parseable".format(
-                                    extension=extension))
+class DjangoValidation(LinkParseable):
+    def __init__(self):
+        self.validator = validators.URLValidator(validator_user_agent=\
+                                            settings.USER_AGENT)
+    def parseable(self, link):
+        self.validator(link)
 
 
-class FilterKnownBadUrls(LinkParseable):
-    bad_urls = set(('javascript:', 'mailto:'))
-    def parseable(self, link, bad_urls=bad_urls):
-        for url in bad_urls:
-            if link.find(url) != -1:
-                raise ValueError('{link} is a known bad URL'.format(link=link))
+class VerifyExists(LinkParseable):
+    def parseable(self, url):
+        """
+        This method takes almost all it's code from
+        django.core.validators.URLValidator, but it does follow redirects
+        """
+        headers = {
+                "Accept": "text/xml,application/xml,application/xhtml+xml,"
+                    "text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5",
+                "Accept-Language": "en-us,en;q=0.5",
+                "Accept-Charset": "ISO-8859-1,utf-8;q=0.7,*;q=0.7",
+                "Connection": "close",
+                "User-Agent": settings.USER_AGENT,
+            }
+        req = urllib2.Request(url, None, headers)
+        req.get_method = lambda: 'HEAD'
+        #Create an opener that does not support local file access
+        opener = urllib2.OpenerDirector()
+
+        handlers = [urllib2.UnknownHandler(),
+                    urllib2.HTTPHandler(),
+                    urllib2.HTTPDefaultErrorHandler(),
+                    urllib2.FTPHandler(),
+                    urllib2.HTTPErrorProcessor()]
+        try:
+            import ssl
+            handlers.append(urllib2.HTTPSHandler())
+        except:
+            #Python isn't compiled with SSL support
+            pass
+        map(opener.add_handler, handlers)
+        try:
+            if platform.python_version_tuple() >= (2, 6):
+                resp =opener.open(req, timeout=10)
+            else:
+                resp = opener.open(req)
+        except ValueError:
+            raise ValidationError(u"Invalid URL", code='invalid')
+        except: # urllib2.URLError, httplib.InvalidURL, etc.
+            raise ValidationError(u'This URL appears to be a broken link.',
+                code='invalid_link')
+        else:
+            content_type = resp.headers.getheader('Content-Type', None)
+            if content_type.split(';')[0] not in ("text/xml", "application/xml",
+                                                  "application/xhtml+xml",
+                                                  "text/html"):
+                logging.error("Content type {0} isn't parseable".format(
+                                content_type.split(';')[0]))
+                raise ValidationError(u"Content not parseable",
+                                      code='not_parseable')
 
 
 def parseable(link):
@@ -69,6 +112,6 @@ def parseable(link):
     for plugin in LinkParseable.plugins:
         try:
             plugin().parseable(link)
-        except ValueError, e:
-            errors.append(str(e))
+        except ValidationError, error:
+            errors.append((str(error), error.code))
     return errors
