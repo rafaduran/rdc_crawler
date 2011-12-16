@@ -25,11 +25,13 @@ for flag in dir(fabricrc):
     if not flag.startswith('__'):
         api.env[flag.lower()] = getattr(fabricrc, flag)
 api.env.settings = 'global'
+api.env.no_keys = True
+api.env.no_agent = True
 
 
 def value_or_take_from_env(value, string):
     if value is None:
-        value = value = string.format(**api.env)
+        value = string.format(**api.env)
     return value
 
 
@@ -115,3 +117,11 @@ def log():
         api.run("tail -f /var/log/celery/celery.log")
     except KeyboardInterrupt:
         pass
+
+@task
+def test(apps=['crawler']):
+    """
+    Run tests for selected applications, default just 'crawler'
+    """
+    api.local("tools/with_venv.sh python rdc_crawler/manage.py test {apps}".\
+              format(apps=' '.join([app for app in apps])))
