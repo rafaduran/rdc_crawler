@@ -42,42 +42,45 @@ def find_links(doc_id, links_callback=None, doc_callback=None):
     if doc is None or not len(doc.content):
         return
 
-    raw_links = []
+    raw_links = set()
 
     try:
         for match in link_single_re.finditer(doc.content):
-            raw_links.append(match.group(1))
+            raw_links.add(match.group(1))
         for match in link_double_re.finditer(doc.content):
-            raw_links.append(match.group(1))
+            raw_links.add(match.group(1))
     except TypeError:
         # Content is not a string
         pass
 
     doc.links = []
+    parseable_links = []
     parse = urlparse.urlparse(doc['url'])
-    for index,link in enumerate(raw_links):
-        errors = plugins.parseable(link)
-        if errors:
-            logging.error(errors)
-            del raw_links[index]
-            continue
+
+    for link in raw_links:
+        possible_paths = []
         if link.startswith('#') or link.startswith("//"):
             continue
         elif link.startswith('http://') or link.startswith('https://'):
             pass
         elif link.startswith('/'):
-            link = parse.scheme + '://' + parse.netloc + link
+            possible_paths = parse.path.split('/')[:-1]
         else:
-            link = parse.scheme + '://' + parse.netloc + '/' + link
+            link = '/' + link
+            possible_paths = parse.path.split('/')[:-1]
 
-        doc.links.append(iri_to_uri(link.split("#")[0]))
+        link, parseable = check(iri_to_uri(link.split("#")[0]), possible_paths,
+                                parse)
+        link and doc.links.append(link)
+        if parseable:
+            parseable_links.append(link)
 
     doc.store(settings.DB)
 
     # TODO: subtask this
     calculate_rank.delay(doc.id)
 
-    for index, link in enumerate(doc.links):
+    for link in parseable_links:
         page = models.Page.get_by_url(link, update=False)
         if page is None and not links_callback is None:
             # Do I need a substask or task here?
@@ -87,7 +90,36 @@ def find_links(doc_id, links_callback=None, doc_callback=None):
     else:
         # Useful for testing
         if links_callback is None:
-            return doc.links
+            return doc.links, parseable_links
+
+
+def check(link, possible_paths=None, parse=None):
+    if not possible_paths:
+        errors = plugins.parseable(link)
+        if not errors:
+            return link, True
+        elif ('invalid' in [error[1] for error in errors] or
+            'invalid_link' in [error[1] for error in errors]):
+            return None, False
+        else:
+            return link, False
+    else:
+        parts = [possible_paths[:i] for i in range(1,len(possible_paths)+1)]
+        paths = ['/'.join(part) for part in parts]
+        possible_links = ['{scheme}://{netloc}{path}{link}'.format(
+                            scheme=parse.scheme, netloc=parse.netloc,
+                            path=path, link=link) for path in paths]
+        for plink in possible_links:
+            errors = plugins.parseable(plink)
+            result = plink
+            if not errors:
+                return plink, True
+            else:
+                for error in errors:
+                    if error[1] == 'invalid' or error[1] == 'invalid_link':
+                        result = None
+        logging.error("{errors}, URL: {link}".format(errors=errors, link=link))
+        return result, False
 
 
 @task

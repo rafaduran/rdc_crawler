@@ -15,7 +15,7 @@ import abc
 import os
 import urllib2
 import platform
-import logging
+#import logging
 import django.core.validators as validators
 from django.core.exceptions import ValidationError
 
@@ -98,11 +98,8 @@ class VerifyExists(LinkParseable):
                 code='invalid_link')
         else:
             content_type = resp.headers.getheader('Content-Type', None)
-            if content_type.split(';')[0] not in ("text/xml", "application/xml",
-                                                  "application/xhtml+xml",
-                                                  "text/html"):
-                logging.error("Content type {0} isn't parseable".format(
-                                content_type.split(';')[0]))
+            if content_type.split(';')[0].lower() not in ("text/xml",
+                    "application/xml", "application/xhtml+xml", "text/html"):
                 raise ValidationError(u"Content not parseable",
                                       code='not_parseable')
 
