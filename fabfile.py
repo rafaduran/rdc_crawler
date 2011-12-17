@@ -46,6 +46,7 @@ def checks():
         api.local("rm *.txt")
         api.local("tools/run_checks.sh")
 
+
 @task
 def vagrant_prepare():
     """
@@ -109,6 +110,7 @@ def celery(command='start'):
     operations.require('settings', provided_by=[api.env.enviro])
     api.sudo("service celery {command}".format(command=command))
 
+
 @task
 @parallel
 @roles('worker')
@@ -121,6 +123,7 @@ def log():
     except KeyboardInterrupt:
         pass
 
+
 @task
 def test(apps=['crawler']):
     """
@@ -129,6 +132,7 @@ def test(apps=['crawler']):
     api.local("tools/with_venv.sh python rdc_crawler/manage.py test {apps}".\
               format(apps=' '.join([app for app in apps])))
 
+
 @task
 def view(view_name, key=None):
     """
@@ -136,3 +140,12 @@ def view(view_name, key=None):
     """
     kwargs = {'key': key} if key is not None else {}
     print(settings.DB.view(view_name,**kwargs)).rows
+
+
+@task
+def manage(command):
+    """
+    Run commands from manage.py
+    """
+    api.local("tools/with_venv.sh python rdc_crawler/manage.py {command}".\
+              format(command=command))
