@@ -21,4 +21,4 @@ class Command(BaseCommand):
         arg...
     """
     def handle(self, url, **options):
-        tasks.retrieve_page.delay(url)
+        tasks.retrieve_page.delay(url, callback=tasks.find_links)

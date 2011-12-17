@@ -22,19 +22,22 @@ import rdc_crawler.crawler.models as models
 import rdc_crawler.settings as settings
 import rdc_crawler.crawler.celery.plugins as plugins
 
-# TODO: Use callbacks on retrieve_page
+
 @task
-def retrieve_page(url):
+def retrieve_page(url, callback=None):
     page = models.Page.get_by_url(url)
     if page is None or page.id is None:
         return
 
-    find_links.delay(page.id, links_callback=retrieve_page,
+    if not callback is None:
+        subtask(callback).delay(page.id, links_callback=retrieve_page,
+                     callback_for_links_callback=find_links,
                      doc_callback=calculate_rank)
 
 
 @task
-def find_links(doc_id, links_callback=None, doc_callback=None):
+def find_links(doc_id, links_callback=None, doc_callback=None,
+               callback_for_links_callback=None):
     link_single_re = re.compile(r"<a[^>]+href='([^']+)'")
     link_double_re = re.compile(r'<a[^>]+href="([^"]+)"')
 
@@ -84,7 +87,7 @@ def find_links(doc_id, links_callback=None, doc_callback=None):
         page = models.Page.get_by_url(link, update=False)
         if page is None and not links_callback is None:
             # Do I need a substask or task here?
-            links_callback.delay(link)
+            links_callback.delay(link, callback=callback_for_links_callback)
         elif not links_callback is None:
             subtask(doc_callback).delay(page.id)
     else:
