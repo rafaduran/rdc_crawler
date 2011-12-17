@@ -32,12 +32,13 @@ def retrieve_page(url, callback=None):
     if not callback is None:
         subtask(callback).delay(page.id, links_callback=retrieve_page,
                      callback_for_links_callback=find_links,
-                     doc_callback=calculate_rank)
+                     doc_callback=calculate_rank,
+                     callback_for_doc_callback=calculate_rank)
 
 
 @task
-def find_links(doc_id, links_callback=None, doc_callback=None,
-               callback_for_links_callback=None):
+def find_links(doc_id,  doc_callback=None, callback_for_doc_callback=None,
+               links_callback=None, callback_for_links_callback=None):
     link_single_re = re.compile(r"<a[^>]+href='([^']+)'")
     link_double_re = re.compile(r'<a[^>]+href="([^"]+)"')
 
@@ -80,16 +81,17 @@ def find_links(doc_id, links_callback=None, doc_callback=None,
 
     doc.store(settings.DB)
 
-    # TODO: subtask this
-    calculate_rank.delay(doc.id)
+    if doc_callback is not None:
+        subtask(doc_callback).delay(doc.id, callback=callback_for_doc_callback)
 
     for link in parseable_links:
         page = models.Page.get_by_url(link, update=False)
         if page is None and not links_callback is None:
             # Do I need a substask or task here?
             links_callback.delay(link, callback=callback_for_links_callback)
-        elif not links_callback is None:
-            subtask(doc_callback).delay(page.id)
+        elif not doc_callback is None:
+            subtask(doc_callback).delay(page.id,
+                callback=callback_for_doc_callback)
     else:
         # Useful for testing
         if links_callback is None:
@@ -126,7 +128,7 @@ def check(link, possible_paths=None, parse=None):
 
 
 @task
-def calculate_rank(doc_id):
+def calculate_rank(doc_id, callback=None):
     try:
         page = models.Page.load(settings.DB, doc_id)
         if page is None:
@@ -166,8 +168,8 @@ def calculate_rank(doc_id):
 
         for link in page.links:
             linked_page = models.Page.get_by_url(link, update=False)
-            if linked_page is not None:
-                calculate_rank.delay(linked_page.id)
+            if linked_page is not None and callback is not None:
+                subtask(callback).delay(linked_page.id)
 
 
 if __name__ == '__main__':
