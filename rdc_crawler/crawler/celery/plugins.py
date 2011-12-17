@@ -103,7 +103,7 @@ class VerifyExists(LinkParseable):
                 raise ValidationError(u"Content not parseable",
                                       code='not_parseable')
 
-
+# TODO: review ':' links: /hosting/search?q=label:web -> 'invalid_link'
 def parseable(link):
     errors = []
     for plugin in LinkParseable.plugins:
