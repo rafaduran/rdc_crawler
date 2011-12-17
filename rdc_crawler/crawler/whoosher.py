@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- Encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 import os
 import logging
@@ -33,7 +33,7 @@ def get_index(path):
         index = windex.open_dir(path)
     else:
         try:
-            os.mkdir(path)
+            os.makedirs(path)
         except OSError:
             pass
         index = windex.create_in(path, SCHEMA)
@@ -44,17 +44,17 @@ def get_writer(path='{0}/index/'.format(settings.WHOOSH_PATH)):
     """
     Return a writer
     """
-    writer = None
     limit = settings.LOCK_ATTEMPTS
-    attempts = 0
-    try:
-        while writer == None and attempts < limit:
-            attempts += 1
-            try:
-                writer = get_index(path).writer()
-            except LockError as exc:
-                time.sleep(.1)
-    except:
-        logging.debug('whoosher: exception getting writer: %s',
-                format_exc(exc))
-    return writer
+    #try:
+        #while writer == None and attempts < limit:
+    for _ in range(1, limit-1):
+#            attempts += 1
+        try:
+            return get_index(path).writer()
+        except LockError, exc:
+            logging.error('whoosher: exception getting writer: %s',
+                              format_exc(exc))
+            time.sleep(1)
+        else:
+            return get_index(path).writer()
+
