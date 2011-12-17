@@ -13,6 +13,8 @@ import fabric.contrib.console as console
 from fabric.decorators import roles, parallel, runs_once, task
 import fabric.contrib.project as project
 
+import rdc_crawler.settings as settings
+
 try:
     import fabricrc
 except ImportError:
@@ -126,3 +128,11 @@ def test(apps=['crawler']):
     """
     api.local("tools/with_venv.sh python rdc_crawler/manage.py test {apps}".\
               format(apps=' '.join([app for app in apps])))
+
+@task
+def view(view_name, key=None):
+    """
+    Run given by name CouchDB view. Optional argument is key
+    """
+    kwargs = {'key': key} if key is not None else {}
+    print(settings.DB.view(view_name,**kwargs)).rows
