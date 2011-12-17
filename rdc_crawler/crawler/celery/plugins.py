@@ -22,9 +22,6 @@ from django.core.exceptions import ValidationError
 import rdc_crawler.settings as settings
 
 
-EXT_FILE = '{ext_path}/extensions.txt'.format(ext_path=os.path.realpath(
-                os.path.split(__file__)[0] + "../../../../tools"))
-
 class PluginMount(abc.ABCMeta):
     def __init__(cls, name, bases, attrs): #@NoSelf
         if not hasattr(cls, 'plugins'):
@@ -102,6 +99,7 @@ class VerifyExists(LinkParseable):
                     "application/xml", "application/xhtml+xml", "text/html"):
                 raise ValidationError(u"Content not parseable",
                                       code='not_parseable')
+
 
 # TODO: review ':' links: /hosting/search?q=label:web -> 'invalid_link'
 def parseable(link):
