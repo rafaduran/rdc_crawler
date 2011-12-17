@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- Encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # vim: tabstop=4 shiftwidth=4 softtabstop=4
 """
 :py:mod:`~rdc_crawler.crawler.celery.tasks` --- Very short description
@@ -73,8 +73,8 @@ def find_links(doc_id,  doc_callback=None, callback_for_doc_callback=None,
             link = '/' + link
             possible_paths = parse.path.split('/')[:-1]
 
-        link, parseable = check(iri_to_uri(link.split("#")[0]), possible_paths,
-                                parse)
+        link, parseable = check(iri_to_uri(link.split("#")[0]), parse,
+                                possible_paths)
         link and doc.links.append(link)
         if parseable:
             parseable_links.append(link)
@@ -98,7 +98,7 @@ def find_links(doc_id,  doc_callback=None, callback_for_doc_callback=None,
             return doc.links, parseable_links
 
 
-def check(link, possible_paths=None, parse=None):
+def check(link, parse, possible_paths=None):
     if not possible_paths:
         errors = plugins.parseable(link)
         if not errors:
@@ -123,7 +123,13 @@ def check(link, possible_paths=None, parse=None):
                 for error in errors:
                     if error[1] == 'invalid' or error[1] == 'invalid_link':
                         result = None
-        logging.error("{errors}, URL: {link}".format(errors=errors, link=link))
+                    elif error[1] == 'not_parseable':
+                        break
+        logging.error("{errors}, URL: {link}".format(link=link, errors=\
+                        ' '.join(['{0}{1}'.format(error[0], error[1]) for\
+                            error in errors])))
+        logging.error("Links checked:\n {links}".format(links=\
+                        '\t'.join([link for link in possible_links])))
         return result, False
 
 
