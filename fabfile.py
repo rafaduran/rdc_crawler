@@ -81,7 +81,8 @@ def update_src(path=None, src=None, delete=False):
     path = value_or_take_from_env(path, "{code_dir}")
     project.rsync_project(local_dir='.', remote_dir=path, delete=delete,
                       exclude=("*.pyc", "whoosh", ".crawler-venv", ".git",
-                               "deploy", ".gitmodules", ".settings*"))
+                               "deploy", ".gitmodules", ".settings*",
+                               "rdc_crawler/local/*"))
 
 
 @task
