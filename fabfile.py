@@ -143,7 +143,7 @@ def view(view_name, key=None):
 
 
 @task
-def manage(command):
+def manage(command=""):
     """
     Run commands from manage.py
     """

@@ -125,10 +125,10 @@ def check(link, parse, possible_paths=None):
                         result = None
                     elif error[1] == 'not_parseable':
                         break
-        logging.error("{errors}, URL: {link}".format(link=link, errors=\
+        logging.debug("{errors}, URL: {link}".format(link=link, errors=\
                         ' '.join(['{0}{1}'.format(error[0], error[1]) for\
                             error in errors])))
-        logging.error("Links checked:\n {links}".format(links=\
+        logging.debug("Links checked:\n {links}".format(links=\
                         '\t'.join([link for link in possible_links])))
         return result, False
 
@@ -176,7 +176,3 @@ def calculate_rank(doc_id, callback=None):
             linked_page = models.Page.get_by_url(link, update=False)
             if linked_page is not None and callback is not None:
                 subtask(callback).delay(linked_page.id)
-
-
-if __name__ == '__main__':
-    pass

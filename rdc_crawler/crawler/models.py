@@ -15,7 +15,7 @@ from couchdb.mapping import (TextField, ListField, FloatField, DateTimeField,
 
 import rdc_crawler.settings as settings
 
-
+# TODO: replace urllib2 by httplib2
 class Page(Document):
     doc_type = TextField(default="page")
     url = TextField()
