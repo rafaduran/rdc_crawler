@@ -80,6 +80,7 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
+    "html5boilerplate/static",
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -106,11 +107,14 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'mediagenerator.middleware.MediaMiddleware',
 )
 
 ROOT_URLCONF = 'rdc_crawler.urls'
 
 TEMPLATE_DIRS = (
+    'rdc_crawler/html5boilerplate/templates',
+    'rdc_crawler/html5boilerplate/templates/crawler',
     # Put strings here, like "/home/html/django_templates" or
     # "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
@@ -125,6 +129,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'djcelery',
+    'mediagenerator',
+    'html5boilerplate',
+    'gunicorn',
     'crawler',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
@@ -171,6 +178,32 @@ except ImportError as e:
 
 if not os.path.exists(EMAIL_FILE_PATH):
     os.mkdir(EMAIL_FILE_PATH)
+
+from rdc_crawler.html5boilerplate.media import HTML5_MEDIA_BUNDLES
+MEDIA_BUNDLES = HTML5_MEDIA_BUNDLES
+
+# Get project root folder
+_project_root = os.path.dirname(__file__)
+
+# Set global media search paths
+GLOBAL_MEDIA_DIRS = (
+    os.path.join(_project_root, 'static'),
+)
+
+# Set media URL (important: don't forget the trailing slash!).
+# PRODUCTION_MEDIA_URL is used when running manage.py generatemedia
+MEDIA_DEV_MODE = DEBUG
+DEV_MEDIA_URL = '/devmedia/'
+PRODUCTION_MEDIA_URL = '/media/'
+
+# Configure yuicompressor if available
+YUICOMPRESSOR_PATH = os.path.join(
+    os.path.dirname(_project_root), 'yuicompressor.jar')
+if os.path.exists(YUICOMPRESSOR_PATH):
+    ROOT_MEDIA_FILTERS = {
+        'js': 'mediagenerator.filters.yuicompressor.YUICompressor',
+        'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
+    }
 
 # Celery
 import djcelery
