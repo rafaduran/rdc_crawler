@@ -14,3 +14,5 @@ Kombu
 Whoosh
 BeautifulSoup
 unittest2
+gunicorn
+django-mediagenerator
