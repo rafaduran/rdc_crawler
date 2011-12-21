@@ -58,3 +58,5 @@ def get_writer(path='{0}/index/'.format(settings.WHOOSH_PATH)):
         else:
             return get_index(path).writer()
 
+def get_searcher(path='{0}/index/'.format(settings.WHOOSH_PATH)):
+    return get_index(path).searcher()

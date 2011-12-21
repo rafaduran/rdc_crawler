@@ -14,4 +14,6 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
+    url(r'^index', 'rdc_crawler.crawler.views.index', name='index'),
+    url(r'^search','rdc_crawler.crawler.views.search', name='search')
 )

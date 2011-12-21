@@ -86,6 +86,17 @@ class Page(Document):
     def is_valid(self):
         return (datetime.now() - self.last_checked).days < 7
 
+    @staticmethod
+    def count():
+        result = settings.DB.view("page/by_url", limit=0)
+        return result.total_rows
+
+    @staticmethod
+    def get_top_by_rank(limit=20):
+        results = settings.DB.view("page/by_rank", limit=limit,
+                                   descending=True)
+        return [{'rank': row.key, 'url': row.value} for row in results.rows]
+
 
 class RobotsTxt(Document):
     doc_type = TextField(default="robotstxt")
