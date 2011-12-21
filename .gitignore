@@ -11,3 +11,4 @@ celerybeat-schedule
 *.log
 index/
 fabricrc.py
+rdc_crawler/_generated_media*
