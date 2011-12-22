@@ -16,3 +16,5 @@ BeautifulSoup
 unittest2
 gunicorn
 django-mediagenerator
+eventlet
+gevent
