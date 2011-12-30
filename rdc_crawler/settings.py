@@ -3,6 +3,9 @@ import os
 
 import couchdb
 
+# Get project root folder
+_project_root = os.path.dirname(__file__)
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -113,8 +116,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'rdc_crawler.urls'
 
 TEMPLATE_DIRS = (
-    'rdc_crawler/html5boilerplate/templates',
-    'rdc_crawler/html5boilerplate/templates/crawler',
+    '{0}/html5boilerplate/templates'.format(_project_root),
+    '{0}/html5boilerplate/templates/crawler'.format(_project_root),
     # Put strings here, like "/home/html/django_templates" or
     # "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
@@ -182,8 +185,6 @@ if not os.path.exists(EMAIL_FILE_PATH):
 from rdc_crawler.html5boilerplate.media import HTML5_MEDIA_BUNDLES
 MEDIA_BUNDLES = HTML5_MEDIA_BUNDLES
 
-# Get project root folder
-_project_root = os.path.dirname(__file__)
 
 # Set global media search paths
 GLOBAL_MEDIA_DIRS = (
