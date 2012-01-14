@@ -6,7 +6,6 @@ celerymon
 pylint
 pep8
 python-memcached
-pylibmc
 MySQL-python
 Fabric
 Jinja2
