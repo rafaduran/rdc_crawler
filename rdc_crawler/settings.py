@@ -170,7 +170,11 @@ try:
     from rdc_crawler.local.local_settings import *  # @UnusedWildImport
     try:
         server = couchdb.Server(SERVER)  # pylint:disable=C0103
-        server.resource.credentials = (COUCH_USER, COUCH_PASS)
+        try:
+            server.resource.credentials = (COUCH_USER, COUCH_PASS)
+        except NameError:
+            # No user/password provided
+            pass
         DB = server['crawler']
     except couchdb.http.ResourceNotFound:
         DB = server.create('crawler')
