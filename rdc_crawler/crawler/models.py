@@ -11,9 +11,11 @@ import logging
 
 from django.core.cache import cache
 from couchdb.mapping import (TextField, ListField, FloatField, DateTimeField,
-            Document)
+            Document, IntegerField)
+import couchdb
 
 import rdc_crawler.settings as settings
+import functools
 
 # TODO: replace urllib2 by httplib2
 class Page(Document):
@@ -152,3 +154,35 @@ class RobotsTxt(Document):
             doc = RobotsTxt(protocol=protocol, domain=domain)
         doc.update()
         return doc
+
+
+class LastSeen(Document):
+    seq = TextField(default=0)
+    last_modified = DateTimeField(default=datetime.now)
+
+    def __init__(self, id, **kwargs):
+        super(LastSeen, self).__init__(id, **kwargs)
+        # Bad hack in order to fix couchdb pip non uniform loading/creating API
+        doc = Document.load(id=id, db=settings.DB)
+        if doc:
+            self._data['_id'] = doc.id
+            self._data['_rev'] = doc.rev
+            self._data['seq'] = doc['seq']
+            self._data['last_modified'] = datetime.strptime(
+                doc['last_modified'], '%Y-%m-%dT%H:%M:%SZ')
+
+    @property
+    def last_seq(self):
+        return self.seq
+
+    @last_seq.setter
+    def last_seq(self, seq):
+        self.seq = seq
+        self.store_if_needed()
+
+    def store_if_needed(self):
+        if((datetime.now() - self.last_modified).total_seconds()\
+                > settings.MAX_TIME):
+            self.last_modified = datetime.now()
+            self.store(settings.DB)
+ 
