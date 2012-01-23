@@ -12,3 +12,4 @@ celerybeat-schedule
 index/
 fabricrc.py
 rdc_crawler/_generated_media*
+*.swp
