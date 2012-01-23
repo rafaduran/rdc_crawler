@@ -18,3 +18,4 @@ django-mediagenerator
 eventlet
 gevent
 docutils
+ipython
