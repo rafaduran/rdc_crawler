@@ -177,8 +177,9 @@ class LastSeen(Document):
 
     @last_seq.setter
     def last_seq(self, seq):
-        self.seq = seq
-        self.store_if_needed()
+        if seq != self.seq:
+            self.seq = seq
+            self.store_if_needed()
 
     def store_if_needed(self):
         if((datetime.now() - self.last_modified).total_seconds()\
